@@ -33,7 +33,7 @@ export default async function BlogPage() {
             </p>
             {isSanityConfigured && (
               <Link
-                href="/studio/structure"
+                href="/blog/studio/structure"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="mt-6 inline-block font-mono text-xs tracking-widest text-accent uppercase hover:underline"

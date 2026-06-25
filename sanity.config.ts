@@ -10,7 +10,7 @@ export default defineConfig({
   title: "Gleydson Santos — Blog",
   projectId: sanityProjectId ?? "missing-project-id",
   dataset: sanityDataset,
-  basePath: "/studio",
+  basePath: "/blog/studio",
   plugins: [structureTool(), visionTool(), codeInput()],
   schema: { types: schemaTypes },
 });

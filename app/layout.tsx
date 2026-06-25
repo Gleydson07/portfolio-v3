@@ -1,10 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, JetBrains_Mono, Space_Grotesk } from "next/font/google";
-import { AmbientOrbs } from "@/components/layout/AmbientOrbs";
-import { GridBackground } from "@/components/layout/GridBackground";
-import { HudNavigation } from "@/components/layout/HudNavigation";
-import { ScrollProgress, ScrollProgressGlow } from "@/components/layout/ScrollProgress";
-import { SmoothScrollProvider } from "@/components/providers/SmoothScrollProvider";
+import { SiteChrome } from "@/components/layout/SiteChrome";
 import { siteConfig } from "@/lib/content";
 import "./globals.css";
 
@@ -78,14 +74,7 @@ export default function RootLayout({
       className={`${spaceGrotesk.variable} ${inter.variable} ${jetbrainsMono.variable}`}
     >
       <body className="antialiased">
-        <SmoothScrollProvider>
-          <ScrollProgress />
-          <ScrollProgressGlow />
-          <GridBackground />
-          <AmbientOrbs />
-          <HudNavigation />
-          <main className="relative z-10">{children}</main>
-        </SmoothScrollProvider>
+        <SiteChrome>{children}</SiteChrome>
       </body>
     </html>
   );

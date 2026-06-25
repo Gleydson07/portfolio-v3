@@ -8,12 +8,17 @@ export const siteConfig = {
   status: "DISPONÍVEL · VIÇOSA, AL",
 };
 
-export const navigation = [
+export type NavAnchorItem = { id: string; label: string; href?: never };
+export type NavLinkItem = { label: string; href: string; id?: never };
+export type NavItem = NavAnchorItem | NavLinkItem;
+
+export const navigation: NavItem[] = [
   { id: "inicio", label: "Início" },
   { id: "expertise", label: "Expertise" },
   { id: "experiencia", label: "Trajetória" },
   { id: "contato", label: "Contato" },
-] as const;
+  { label: "Blog", href: "/blog" },
+];
 
 export const heroContent = {
   greeting: "Olá, meu nome é",
@@ -121,7 +126,7 @@ export const contactContent = {
   hudLabel: "// CONTATO",
   title: "Tem um produto para construir?",
   description:
-    "Disponível para oportunidades como desenvolvedor full-stack — React, Node.js e integrações com impacto real. Escolha um canal abaixo e fale comigo.",
+    "Uno arquitetura, engenharia de software e visão de produto para levar sua ideia à entrega — com soluções que escalam. Escolha um canal abaixo e vamos conversar.",
   links: [
     {
       label: "LinkedIn",

@@ -9,6 +9,7 @@ interface SectionHeadingProps {
   align?: "left" | "center";
   large?: boolean;
   compact?: boolean;
+  tight?: boolean;
   titleClassName?: string;
   subtitleClassName?: string;
 }
@@ -20,11 +21,12 @@ export function SectionHeading({
   align = "left",
   large = false,
   compact = false,
+  tight = false,
   titleClassName = "",
   subtitleClassName = "",
 }: SectionHeadingProps) {
   const alignClass = align === "center" ? "text-center mx-auto" : "text-left";
-  const spacingClass = compact ? "mb-0" : "mb-12 md:mb-16";
+  const spacingClass = compact ? "mb-0" : tight ? "mb-8" : "mb-12 md:mb-16";
 
   return (
     <div className={`${spacingClass} ${alignClass} max-w-4xl`}>

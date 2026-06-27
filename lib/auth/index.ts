@@ -1,7 +1,17 @@
 import NextAuth from "next-auth";
 import GitHub from "next-auth/providers/github";
 
-const allowedGithubId = process.env.ALLOWED_GITHUB_ID;
+function getAllowedGithubIds(): ReadonlySet<string> {
+  const raw = process.env.ALLOWED_GITHUB_ID?.trim();
+  if (!raw) return new Set();
+
+  const ids = raw
+    .split(/[,\s]+/)
+    .map((id) => id.trim())
+    .filter((id) => /^\d+$/.test(id));
+
+  return new Set(ids);
+}
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [GitHub],
@@ -10,8 +20,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   },
   callbacks: {
     signIn({ profile }) {
-      if (!allowedGithubId) return false;
-      return profile?.id === allowedGithubId;
+      const allowedGithubIds = getAllowedGithubIds();
+      if (allowedGithubIds.size === 0) return false;
+      if (typeof profile?.id !== "number") return false;
+
+      return allowedGithubIds.has(String(profile.id));
     },
     session({ session, token }) {
       if (session.user && token.sub) {

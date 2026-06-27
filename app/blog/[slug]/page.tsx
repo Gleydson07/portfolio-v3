@@ -3,6 +3,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PortableTextRenderer } from "@/components/blog/PortableTextRenderer";
+import { CommentsSection } from "@/components/blog/CommentsSection";
+import { getApprovedComments } from "@/lib/comments/moderate";
 import { siteConfig } from "@/lib/content";
 import { getPostBySlug, getPostSlugs } from "@/lib/sanity/fetch";
 import { urlForImage } from "@/lib/sanity/image";
@@ -124,6 +126,12 @@ export default async function BlogPostPage({ params }: PageProps) {
         <div className="mt-12">
           <PortableTextRenderer value={post.body} />
         </div>
+
+        <CommentsSection
+          postSlug={post.slug}
+          postTitle={post.title}
+          comments={await getApprovedComments(slug)}
+        />
       </div>
     </article>
   );

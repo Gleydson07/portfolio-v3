@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { approveCommentAction, rejectCommentAction } from "@/lib/comments/admin-actions";
+import { CommentBody } from "@/components/blog/CommentBody";
 import type { Comment } from "@/lib/comments/types";
 
 function formatDateTime(date: string | null) {
@@ -115,7 +116,7 @@ export function CommentModerationPanel({
                 </div>
               </div>
 
-              <p className="mt-4 text-sm leading-relaxed text-text-secondary">{comment.body}</p>
+              <CommentBody body={comment.body} className="mt-4" />
 
               {comment.rejection_reason && (
                 <p className="mt-3 font-mono text-xs text-red-300">
@@ -130,27 +131,31 @@ export function CommentModerationPanel({
                 </p>
               )}
 
-              {tab === "pending" && (
+              {(tab === "pending" || tab === "approved" || tab === "rejected") && (
                 <div className="mt-5 flex flex-wrap gap-3">
-                  <button
-                    type="button"
-                    disabled={isPending}
-                    onClick={() => handleApprove(comment.id)}
-                    className="font-mono rounded-full border border-accent/40 px-4 py-2 text-xs tracking-widest text-accent uppercase hover:bg-accent/10 disabled:opacity-50"
-                  >
-                    Aprovar
-                  </button>
-                  <button
-                    type="button"
-                    disabled={isPending}
-                    onClick={() => {
-                      setRejectingId(comment.id);
-                      setReason("");
-                    }}
-                    className="font-mono rounded-full border border-red-400/40 px-4 py-2 text-xs tracking-widest text-red-300 uppercase hover:bg-red-400/10 disabled:opacity-50"
-                  >
-                    Rejeitar
-                  </button>
+                  {(tab === "pending" || tab === "rejected") && (
+                    <button
+                      type="button"
+                      disabled={isPending}
+                      onClick={() => handleApprove(comment.id)}
+                      className="font-mono rounded-full border border-accent/40 px-4 py-2 text-xs tracking-widest text-accent uppercase hover:bg-accent/10 disabled:opacity-50"
+                    >
+                      Aprovar
+                    </button>
+                  )}
+                  {(tab === "pending" || tab === "approved") && (
+                    <button
+                      type="button"
+                      disabled={isPending}
+                      onClick={() => {
+                        setRejectingId(comment.id);
+                        setReason("");
+                      }}
+                      className="font-mono rounded-full border border-red-400/40 px-4 py-2 text-xs tracking-widest text-red-300 uppercase hover:bg-red-400/10 disabled:opacity-50"
+                    >
+                      Rejeitar
+                    </button>
+                  )}
                   <a
                     href={`/blog/${comment.post_slug}`}
                     target="_blank"
@@ -162,7 +167,7 @@ export function CommentModerationPanel({
                 </div>
               )}
 
-              {rejectingId === comment.id && (
+              {rejectingId === comment.id && tab !== "rejected" && (
                 <div className="mt-5 space-y-3 border-t border-glass-border pt-4">
                   <label
                     htmlFor={`reason-${comment.id}`}

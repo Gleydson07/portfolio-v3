@@ -34,8 +34,8 @@ export async function approveComment(
     return { ok: true, comment: existing, alreadyProcessed: true };
   }
 
-  if (existing.status !== "pending") {
-    return { ok: false, error: "Comentário não está pendente." };
+  if (existing.status !== "pending" && existing.status !== "rejected") {
+    return { ok: false, error: "Status do comentário não permite aprovação." };
   }
 
   const approvedAt = new Date().toISOString();
@@ -50,7 +50,7 @@ export async function approveComment(
       moderated_by: moderatedBy,
     })
     .eq("id", commentId)
-    .eq("status", "pending")
+    .in("status", ["pending", "rejected"])
     .select("*")
     .maybeSingle();
 
@@ -87,11 +87,12 @@ export async function rejectComment(
     return { ok: true, comment: existing, alreadyProcessed: true };
   }
 
-  if (existing.status !== "pending") {
-    return { ok: false, error: "Comentário não está pendente." };
+  if (existing.status !== "pending" && existing.status !== "approved") {
+    return { ok: false, error: "Status do comentário não permite rejeição." };
   }
 
   const rejectedAt = new Date().toISOString();
+  const wasApproved = existing.status === "approved";
 
   const { data, error } = await supabase
     .from("comments")
@@ -103,12 +104,16 @@ export async function rejectComment(
       moderated_by: moderatedBy,
     })
     .eq("id", commentId)
-    .eq("status", "pending")
+    .in("status", ["pending", "approved"])
     .select("*")
     .maybeSingle();
 
   if (error || !data) {
     return { ok: false, error: "Não foi possível rejeitar o comentário." };
+  }
+
+  if (wasApproved) {
+    revalidatePath(`/blog/${existing.post_slug}`);
   }
 
   return { ok: true, comment: data as Comment };
@@ -137,7 +142,7 @@ export async function getApprovedComments(postSlug: string) {
     .select("id, author_name, body, created_at")
     .eq("post_slug", postSlug)
     .eq("status", "approved")
-    .order("created_at", { ascending: true });
+    .order("created_at", { ascending: false });
 
   if (error || !data) return [];
   return data;

@@ -1,7 +1,8 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { submitComment, type SubmitCommentState } from "@/lib/comments/actions";
+import { COMMENT_BODY_MAX, COMMENT_NAME_MAX } from "@/lib/comments/validation";
 
 const initialState: SubmitCommentState = {
   ok: false,
@@ -14,8 +15,34 @@ type CommentFormProps = {
   disabled?: boolean;
 };
 
+function CharacterCounter({ current, max }: { current: number; max: number }) {
+  return (
+    <span
+      className={`font-mono text-[10px] tracking-widest uppercase ${
+        current >= max ? "text-red-400" : "text-text-secondary"
+      }`}
+      aria-live="polite"
+    >
+      {current}/{max}
+    </span>
+  );
+}
+
+function clamp(value: string, max: number) {
+  return value.slice(0, max);
+}
+
 export function CommentForm({ postSlug, postTitle, disabled = false }: CommentFormProps) {
   const [state, formAction, pending] = useActionState(submitComment, initialState);
+  const [authorName, setAuthorName] = useState("");
+  const [body, setBody] = useState("");
+
+  useEffect(() => {
+    if (state.ok) {
+      setAuthorName("");
+      setBody("");
+    }
+  }, [state]);
 
   if (disabled) {
     return (
@@ -39,37 +66,47 @@ export function CommentForm({ postSlug, postTitle, disabled = false }: CommentFo
       />
 
       <div>
-        <label
-          htmlFor="authorName"
-          className="font-mono mb-2 block text-xs tracking-widest text-text-secondary uppercase"
-        >
-          Nome (opcional)
-        </label>
+        <div className="mb-2 flex items-baseline justify-between gap-4">
+          <label
+            htmlFor="authorName"
+            className="font-mono text-xs tracking-widest text-text-secondary uppercase"
+          >
+            Nome (opcional)
+          </label>
+          <CharacterCounter current={authorName.length} max={COMMENT_NAME_MAX} />
+        </div>
         <input
           id="authorName"
           name="authorName"
           type="text"
-          maxLength={80}
+          value={authorName}
+          maxLength={COMMENT_NAME_MAX}
           placeholder="Seu nome"
+          onChange={(event) => setAuthorName(clamp(event.target.value, COMMENT_NAME_MAX))}
           className="glass-panel w-full rounded-xl border border-glass-border bg-transparent px-4 py-3 text-sm text-text-primary outline-none focus:border-accent/40"
         />
       </div>
 
       <div>
-        <label
-          htmlFor="body"
-          className="font-mono mb-2 block text-xs tracking-widest text-text-secondary uppercase"
-        >
-          Comentário
-        </label>
+        <div className="mb-2 flex items-baseline justify-between gap-4">
+          <label
+            htmlFor="body"
+            className="font-mono text-xs tracking-widest text-text-secondary uppercase"
+          >
+            Comentário
+          </label>
+          <CharacterCounter current={body.length} max={COMMENT_BODY_MAX} />
+        </div>
         <textarea
           id="body"
           name="body"
           required
           minLength={3}
-          maxLength={2000}
+          maxLength={COMMENT_BODY_MAX}
           rows={5}
+          value={body}
           placeholder="Escreva seu comentário..."
+          onChange={(event) => setBody(clamp(event.target.value, COMMENT_BODY_MAX))}
           className="glass-panel w-full rounded-xl border border-glass-border bg-transparent px-4 py-3 text-sm leading-relaxed text-text-primary outline-none focus:border-accent/40"
         />
       </div>
@@ -82,13 +119,14 @@ export function CommentForm({ postSlug, postTitle, disabled = false }: CommentFo
         {pending ? "Enviando..." : "Enviar comentário"}
       </button>
 
-      {state.message && (
-        <p
-          className={`font-mono text-xs tracking-widest uppercase ${
-            state.ok ? "text-accent" : "text-red-400"
-          }`}
-          role="status"
-        >
+      {state.message && !state.ok && (
+        <p className="font-mono text-xs tracking-widest text-red-400 uppercase" role="alert">
+          {state.message}
+        </p>
+      )}
+
+      {state.message && state.ok && (
+        <p className="font-mono text-xs tracking-widest text-accent uppercase" role="status">
           {state.message}
         </p>
       )}

@@ -65,7 +65,7 @@ export function MagneticButton({
           {inner}
         </a>
       ) : (
-        <button type="button" onClick={onClick} className="inline-block cursor-pointer">
+        <button type="button" onClick={onClick} className="inline-block">
           {inner}
         </button>
       )}

@@ -58,7 +58,7 @@ export async function notifyModeration(comment: Comment): Promise<{
   const postUrl = `${baseUrl}/blog/${comment.post_slug}`;
   const approveUrl = `${baseUrl}/api/moderate/approve?token=${encodeURIComponent(approveToken)}`;
   const rejectUrl = `${baseUrl}/api/moderate/reject?token=${encodeURIComponent(rejectToken)}`;
-  const adminUrl = `${baseUrl}/admin/comentarios`;
+  const adminUrl = `${baseUrl}/blog/admin`;
 
   const authorLabel = escapeHtml(comment.author_name?.trim() || "Anônimo");
   const safeBody = escapeHtml(comment.body);
@@ -74,7 +74,7 @@ export async function notifyModeration(comment: Comment): Promise<{
         <p><strong>Post:</strong> <a href="${postUrl}">${safeTitle}</a></p>
         <p><strong>Nome:</strong> ${authorLabel}</p>
         <p><strong>Comentário:</strong></p>
-        <blockquote>${safeBody}</blockquote>
+        <blockquote style="white-space:pre-wrap;margin:0;padding-left:16px;border-left:3px solid #334155;">${safeBody}</blockquote>
         <p>
           <a href="${approveUrl}" style="display:inline-block;padding:10px 16px;background:#00d4ff;color:#050508;text-decoration:none;border-radius:6px;margin-right:8px;">Aprovar</a>
           <a href="${rejectUrl}" style="display:inline-block;padding:10px 16px;background:#ef4444;color:#fff;text-decoration:none;border-radius:6px;">Rejeitar</a>

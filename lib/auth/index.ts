@@ -16,7 +16,7 @@ function getAllowedGithubIds(): ReadonlySet<string> {
 export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [GitHub],
   pages: {
-    signIn: "/admin/comentarios",
+    signIn: "/blog/admin",
   },
   callbacks: {
     signIn({ profile }) {

@@ -18,7 +18,7 @@ export function moderationPage(title: string, message: string, success = true) {
   <main>
     <h1>${title}</h1>
     <p>${message}</p>
-    <p style="margin-top:20px;"><a href="/admin/comentarios">Ir para o painel</a></p>
+    <p style="margin-top:20px;"><a href="/blog/admin">Ir para o painel</a></p>
   </main>
 </body>
 </html>`;

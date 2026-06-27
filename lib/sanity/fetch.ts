@@ -1,6 +1,6 @@
 import { POSTS_PAGE_SIZE } from "@/lib/blog/constants";
 import { getSanityClient } from "./client";
-import { postBySlugQuery, postsPaginatedQuery, postsSitemapQuery, postSlugsQuery } from "./queries";
+import { postBySlugQuery, postsByIdsQuery, postsPaginatedQuery, postsSitemapQuery, postSlugsQuery } from "./queries";
 import { buildPostSearchParams } from "./search";
 import type { Post, PostListItem } from "./types";
 
@@ -72,4 +72,27 @@ export async function getPostsForSitemap(): Promise<{ slug: string; publishedAt:
   if (!sanity) return [];
 
   return sanity.fetch(postsSitemapQuery);
+}
+
+export type PostPath = {
+  slug: string;
+  title: string;
+};
+
+export async function getPostPathsByIds(ids: string[]): Promise<Record<string, PostPath>> {
+  const uniqueIds = [...new Set(ids.filter(Boolean))];
+  if (uniqueIds.length === 0) return {};
+
+  const sanity = getSanityClient();
+  if (!sanity) return {};
+
+  const rows = await sanity.fetch<{ _id: string; slug: string; title: string }[]>(postsByIdsQuery, {
+    ids: uniqueIds,
+  });
+
+  return Object.fromEntries(
+    rows
+      .filter((row) => row._id && row.slug)
+      .map((row) => [row._id, { slug: row.slug, title: row.title }])
+  );
 }

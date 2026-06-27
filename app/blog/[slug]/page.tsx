@@ -128,9 +128,10 @@ export default async function BlogPostPage({ params }: PageProps) {
         </div>
 
         <CommentsSection
+          postId={post._id}
           postSlug={post.slug}
           postTitle={post.title}
-          comments={await getApprovedComments(slug)}
+          comments={await getApprovedComments(post._id)}
         />
       </div>
     </article>

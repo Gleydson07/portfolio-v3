@@ -58,7 +58,7 @@ export async function notifyModeration(comment: Comment): Promise<{
   const postUrl = `${baseUrl}/blog/${comment.post_slug}`;
   const approveUrl = `${baseUrl}/api/moderate/approve?token=${encodeURIComponent(approveToken)}`;
   const rejectUrl = `${baseUrl}/api/moderate/reject?token=${encodeURIComponent(rejectToken)}`;
-  const adminUrl = `${baseUrl}/blog/admin`;
+  const adminUrl = `${baseUrl}/blog/admin/comentarios`;
 
   const authorLabel = escapeHtml(comment.author_name?.trim() || "Anônimo");
   const safeBody = escapeHtml(comment.body);

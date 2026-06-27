@@ -4,12 +4,13 @@ import type { PublicComment } from "@/lib/comments/types";
 import { isSupabaseConfigured } from "@/lib/supabase/env";
 
 type CommentsSectionProps = {
+  postId: string;
   postSlug: string;
   postTitle: string;
   comments: PublicComment[];
 };
 
-export function CommentsSection({ postSlug, postTitle, comments }: CommentsSectionProps) {
+export function CommentsSection({ postId, postSlug, postTitle, comments }: CommentsSectionProps) {
   return (
     <section className="mt-16 border-t border-glass-border pt-12">
       <p className="hud-label mb-6">{"// COMENTÁRIOS"}</p>
@@ -19,6 +20,7 @@ export function CommentsSection({ postSlug, postTitle, comments }: CommentsSecti
           Deixe seu comentário
         </h3>
         <CommentForm
+          postId={postId}
           postSlug={postSlug}
           postTitle={postTitle}
           disabled={!isSupabaseConfigured}

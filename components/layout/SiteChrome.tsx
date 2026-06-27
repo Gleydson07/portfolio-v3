@@ -13,10 +13,9 @@ type SiteChromeProps = {
 
 export function SiteChrome({ children }: SiteChromeProps) {
   const pathname = usePathname();
-  const isStudio = pathname.startsWith("/blog/studio");
   const isBlogAdmin = pathname.startsWith("/blog/admin");
 
-  if (isStudio || isBlogAdmin) {
+  if (isBlogAdmin) {
     return <>{children}</>;
   }
 

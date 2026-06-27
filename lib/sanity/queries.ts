@@ -39,3 +39,9 @@ export const postsSitemapQuery = `*[_type == "post" && defined(slug.current)] | 
   "slug": slug.current,
   publishedAt
 }`;
+
+export const postsByIdsQuery = `*[_type == "post" && _id in $ids]{
+  _id,
+  title,
+  "slug": slug.current
+}`;

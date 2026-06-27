@@ -23,6 +23,7 @@ export async function submitComment(
   }
 
   const parsed = submitCommentSchema.safeParse({
+    postId: formData.get("postId"),
     postSlug: formData.get("postSlug"),
     postTitle: formData.get("postTitle"),
     authorName: formData.get("authorName") || undefined,
@@ -57,6 +58,7 @@ export async function submitComment(
   const { data, error } = await supabase
     .from("comments")
     .insert({
+      post_id: parsed.data.postId,
       post_slug: parsed.data.postSlug,
       post_title: parsed.data.postTitle,
       author_name: parsed.data.authorName,

@@ -5,6 +5,7 @@ import { useState, useTransition } from "react";
 import { approveCommentAction, rejectCommentAction } from "@/lib/comments/admin-actions";
 import { CommentBody } from "@/components/blog/CommentBody";
 import type { Comment } from "@/lib/comments/types";
+import type { PostPath } from "@/lib/sanity/fetch";
 
 function formatDateTime(date: string | null) {
   if (!date) return "—";
@@ -18,10 +19,22 @@ function displayName(name: string | null) {
   return name?.trim() || "Anônimo";
 }
 
+function resolvePostPath(comment: Comment, postPaths: Record<string, PostPath>): PostPath {
+  if (comment.post_id && postPaths[comment.post_id]) {
+    return postPaths[comment.post_id];
+  }
+
+  return {
+    slug: comment.post_slug,
+    title: comment.post_title ?? comment.post_slug,
+  };
+}
+
 type CommentModerationPanelProps = {
   pending: Comment[];
   approved: Comment[];
   rejected: Comment[];
+  postPaths: Record<string, PostPath>;
 };
 
 type Tab = "pending" | "approved" | "rejected";
@@ -30,6 +43,7 @@ export function CommentModerationPanel({
   pending,
   approved,
   rejected,
+  postPaths,
 }: CommentModerationPanelProps) {
   const [tab, setTab] = useState<Tab>("pending");
   const [rejectingId, setRejectingId] = useState<string | null>(null);
@@ -77,10 +91,8 @@ export function CommentModerationPanel({
             key={key}
             type="button"
             onClick={() => setTab(key)}
-            className={`font-mono rounded-full px-4 py-2 text-xs tracking-widest uppercase transition-colors ${
-              tab === key
-                ? "bg-accent/15 text-accent"
-                : "border border-glass-border text-text-secondary hover:text-text-primary"
+            className={`admin-tab font-mono rounded-full px-4 py-2 text-xs tracking-widest uppercase ${
+              tab === key ? "admin-tab-active" : ""
             }`}
           >
             {label}
@@ -89,7 +101,7 @@ export function CommentModerationPanel({
       </div>
 
       {message && (
-        <p className="font-mono mb-6 text-xs tracking-widest text-accent uppercase">{message}</p>
+        <p className="font-mono mb-6 text-xs tracking-widest text-amber-300 uppercase">{message}</p>
       )}
 
       {rows.length === 0 ? (
@@ -98,13 +110,14 @@ export function CommentModerationPanel({
         </p>
       ) : (
         <ul className="space-y-4">
-          {rows.map((comment) => (
+          {rows.map((comment) => {
+            const postPath = resolvePostPath(comment, postPaths);
+
+            return (
             <li key={comment.id} className="glass-panel rounded-2xl p-5">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
-                  <p className="font-mono text-xs tracking-widest text-accent uppercase">
-                    {comment.post_title ?? comment.post_slug}
-                  </p>
+                  <p className="admin-kicker">{postPath.title}</p>
                   <p className="font-display mt-2 text-lg font-semibold text-text-primary">
                     {displayName(comment.author_name)}
                   </p>
@@ -138,7 +151,7 @@ export function CommentModerationPanel({
                       type="button"
                       disabled={isPending}
                       onClick={() => handleApprove(comment.id)}
-                      className="font-mono rounded-full border border-accent/40 px-4 py-2 text-xs tracking-widest text-accent uppercase hover:bg-accent/10 disabled:opacity-50"
+                      className="admin-btn font-mono rounded-full px-4 py-2 text-xs tracking-widest uppercase disabled:opacity-50"
                     >
                       Aprovar
                     </button>
@@ -157,10 +170,10 @@ export function CommentModerationPanel({
                     </button>
                   )}
                   <a
-                    href={`/blog/${comment.post_slug}`}
+                    href={`/blog/${postPath.slug}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="font-mono px-2 py-2 text-xs tracking-widest text-text-secondary uppercase hover:text-accent"
+                    className="admin-btn-ghost font-mono px-2 py-2 text-xs tracking-widest uppercase"
                   >
                     Ver post
                   </a>
@@ -205,7 +218,8 @@ export function CommentModerationPanel({
                 </div>
               )}
             </li>
-          ))}
+            );
+          })}
         </ul>
       )}
     </div>

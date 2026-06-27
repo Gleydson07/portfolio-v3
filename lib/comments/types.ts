@@ -2,6 +2,7 @@ export type CommentStatus = "pending" | "approved" | "rejected";
 
 export type Comment = {
   id: string;
+  post_id: string | null;
   post_slug: string;
   post_title: string | null;
   author_name: string | null;

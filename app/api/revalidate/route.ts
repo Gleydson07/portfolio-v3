@@ -1,9 +1,12 @@
 import { revalidatePath, revalidateTag } from "next/cache";
 import { type NextRequest, NextResponse } from "next/server";
 import { parseBody } from "next-sanity/webhook";
+import { syncCommentsPostMeta } from "@/lib/comments/sync-post";
 
 type WebhookPayload = {
   _type: string;
+  _id?: string;
+  title?: string;
   slug?: { current?: string };
 };
 
@@ -25,6 +28,12 @@ export async function POST(request: NextRequest) {
       revalidateTag("posts");
 
       const slug = body.slug?.current;
+      const postId = body._id;
+
+      if (postId && slug) {
+        await syncCommentsPostMeta(postId, slug, body.title);
+      }
+
       if (slug) {
         revalidateTag(`post:${slug}`);
         revalidatePath(`/blog/${slug}`);

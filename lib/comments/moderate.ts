@@ -133,14 +133,14 @@ export async function listCommentsByStatus(status: CommentStatus): Promise<Comme
   return data as Comment[];
 }
 
-export async function getApprovedComments(postSlug: string) {
+export async function getApprovedComments(postId: string) {
   const supabase = getSupabaseAdmin();
   if (!supabase) return [];
 
   const { data, error } = await supabase
     .from("comments")
     .select("id, author_name, body, created_at")
-    .eq("post_slug", postSlug)
+    .eq("post_id", postId)
     .eq("status", "approved")
     .order("created_at", { ascending: false });
 

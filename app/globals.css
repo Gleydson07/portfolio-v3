@@ -9,6 +9,9 @@
   --color-text-secondary: #94a3b8;
   --color-glass-border: rgba(255, 255, 255, 0.1);
   --color-glass-bg: rgba(255, 255, 255, 0.05);
+  --color-admin: #fcd34d;
+  --color-admin-muted: rgba(252, 211, 77, 0.12);
+  --color-admin-border: rgba(252, 211, 77, 0.35);
 
   --font-display: var(--font-space-grotesk), system-ui, sans-serif;
   --font-body: var(--font-inter), system-ui, sans-serif;
@@ -120,6 +123,94 @@ body {
   letter-spacing: 0.15em;
   text-transform: uppercase;
   color: var(--color-accent);
+}
+
+.admin-shell .hud-label {
+  color: var(--color-admin);
+}
+
+.admin-shell-badge {
+  position: fixed;
+  top: 14px;
+  right: 16px;
+  z-index: 60;
+  margin: 0;
+  padding: 4px 10px;
+  border: 1px solid var(--color-admin-border);
+  border-radius: 999px;
+  background: var(--color-admin-muted);
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--color-admin);
+  pointer-events: none;
+}
+
+@media (min-width: 768px) {
+  .admin-shell-badge {
+    top: 18px;
+    right: 24px;
+  }
+}
+
+.admin-btn {
+  border: 1px solid var(--color-admin-border);
+  color: var(--color-admin);
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.admin-btn:hover {
+  background: var(--color-admin-muted);
+}
+
+.admin-btn-ghost {
+  color: var(--color-text-secondary);
+  transition: color 0.2s ease;
+}
+
+.admin-btn-ghost:hover {
+  color: var(--color-admin);
+}
+
+.admin-kicker {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--color-admin) 85%, white);
+}
+
+.admin-tab {
+  border: 1px solid var(--color-glass-border);
+  color: var(--color-text-secondary);
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.admin-tab:hover {
+  color: var(--color-text-primary);
+}
+
+.admin-tab-active {
+  border-color: var(--color-admin-border);
+  background: var(--color-admin-muted);
+  color: var(--color-admin);
+}
+
+.admin-card {
+  transition: border-color 0.2s ease;
+}
+
+.admin-card:hover {
+  border-color: var(--color-admin-border);
+}
+
+.admin-card:hover .admin-card-title {
+  color: var(--color-admin);
+}
+
+.admin-card-title {
+  transition: color 0.2s ease;
 }
 
 .nav-link-active {

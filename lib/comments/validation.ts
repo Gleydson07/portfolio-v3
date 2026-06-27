@@ -4,6 +4,7 @@ export const COMMENT_NAME_MAX = 40;
 export const COMMENT_BODY_MAX = 2000;
 
 export const submitCommentSchema = z.object({
+  postId: z.string().trim().min(1).max(128),
   postSlug: z.string().min(1).max(200),
   postTitle: z.string().min(1).max(300),
   authorName: z

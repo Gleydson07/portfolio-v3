@@ -1,10 +1,8 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { BlogPostList } from "@/components/blog/BlogPostList";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { siteConfig } from "@/lib/content";
 import { getPostsPage } from "@/lib/sanity/fetch";
-import { isSanityConfigured } from "@/sanity/env";
 
 export const metadata: Metadata = {
   title: "Blog",
@@ -31,16 +29,6 @@ export default async function BlogPage() {
             <p className="font-mono text-sm tracking-widest text-text-secondary uppercase">
               Nenhum post publicado ainda.
             </p>
-            {isSanityConfigured && (
-              <Link
-                href="/blog/studio/structure"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-6 inline-block font-mono text-xs tracking-widest text-accent uppercase hover:underline"
-              >
-                Abrir Studio
-              </Link>
-            )}
           </div>
         ) : (
           <BlogPostList initialPosts={posts} initialHasMore={hasMore} initialTotal={total} />

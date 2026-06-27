@@ -10,6 +10,7 @@ const initialState: SubmitCommentState = {
 };
 
 type CommentFormProps = {
+  postId: string;
   postSlug: string;
   postTitle: string;
   disabled?: boolean;
@@ -32,7 +33,7 @@ function clamp(value: string, max: number) {
   return value.slice(0, max);
 }
 
-export function CommentForm({ postSlug, postTitle, disabled = false }: CommentFormProps) {
+export function CommentForm({ postId, postSlug, postTitle, disabled = false }: CommentFormProps) {
   const [state, formAction, pending] = useActionState(submitComment, initialState);
   const [authorName, setAuthorName] = useState("");
   const [body, setBody] = useState("");
@@ -54,6 +55,7 @@ export function CommentForm({ postSlug, postTitle, disabled = false }: CommentFo
 
   return (
     <form action={formAction} className="space-y-4">
+      <input type="hidden" name="postId" value={postId} />
       <input type="hidden" name="postSlug" value={postSlug} />
       <input type="hidden" name="postTitle" value={postTitle} />
       <input

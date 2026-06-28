@@ -1,6 +1,8 @@
 "use client";
 
+import { motion, useReducedMotion } from "framer-motion";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { BlogFiltersSidebar } from "@/components/blog/BlogFiltersSidebar";
 import { PostCard } from "@/components/blog/PostCard";
 import { POSTS_PAGE_SIZE } from "@/lib/blog/constants";
 import type { PostsPageResult } from "@/lib/sanity/fetch";
@@ -10,35 +12,22 @@ type BlogPostListProps = {
   initialPosts: PostListItem[];
   initialHasMore: boolean;
   initialTotal: number;
+  availableTags: string[];
 };
 
-function SearchIcon() {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="18"
-      height="18"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-      className="shrink-0 text-accent"
-    >
-      <circle cx="11" cy="11" r="8" />
-      <path d="m21 21-4.3-4.3" />
-    </svg>
-  );
-}
+type PostFilters = {
+  title: string;
+  tag: string;
+};
 
-async function fetchPostsPage(page: number, search: string): Promise<PostsPageResult> {
+async function fetchPostsPage(page: number, filters: PostFilters): Promise<PostsPageResult> {
   const params = new URLSearchParams({
     page: String(page),
     limit: String(POSTS_PAGE_SIZE),
-    q: search,
   });
+
+  if (filters.title) params.set("q", filters.title);
+  if (filters.tag) params.set("tag", filters.tag);
 
   const response = await fetch(`/api/blog/posts?${params.toString()}`);
 
@@ -49,9 +38,17 @@ async function fetchPostsPage(page: number, search: string): Promise<PostsPageRe
   return response.json();
 }
 
-export function BlogPostList({ initialPosts, initialHasMore, initialTotal }: BlogPostListProps) {
-  const [query, setQuery] = useState("");
-  const [debouncedQuery, setDebouncedQuery] = useState("");
+export function BlogPostList({
+  initialPosts,
+  initialHasMore,
+  initialTotal,
+  availableTags,
+}: BlogPostListProps) {
+  const shouldReduceMotion = useReducedMotion();
+
+  const [titleQuery, setTitleQuery] = useState("");
+  const [debouncedTitle, setDebouncedTitle] = useState("");
+  const [selectedTag, setSelectedTag] = useState("");
   const [posts, setPosts] = useState(initialPosts);
   const [hasMore, setHasMore] = useState(initialHasMore);
   const [total, setTotal] = useState(initialTotal);
@@ -61,16 +58,16 @@ export function BlogPostList({ initialPosts, initialHasMore, initialTotal }: Blo
   const loadingRef = useRef(false);
   const pageRef = useRef(0);
   const hasMoreRef = useRef(initialHasMore);
-  const searchRef = useRef("");
-  const skipInitialSearchRef = useRef(true);
+  const filtersRef = useRef<PostFilters>({ title: "", tag: "" });
+  const skipInitialLoadRef = useRef(true);
   const sentinelRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const timer = window.setTimeout(() => setDebouncedQuery(query), 300);
+    const timer = window.setTimeout(() => setDebouncedTitle(titleQuery), 300);
     return () => window.clearTimeout(timer);
-  }, [query]);
+  }, [titleQuery]);
 
-  const loadPage = useCallback(async (nextPage: number, search: string, replace: boolean) => {
+  const loadPage = useCallback(async (nextPage: number, filters: PostFilters, replace: boolean) => {
     if (loadingRef.current) return;
 
     loadingRef.current = true;
@@ -78,7 +75,7 @@ export function BlogPostList({ initialPosts, initialHasMore, initialTotal }: Blo
     setError(null);
 
     try {
-      const result = await fetchPostsPage(nextPage, search);
+      const result = await fetchPostsPage(nextPage, filters);
 
       setPosts((current) => (replace ? result.posts : [...current, ...result.posts]));
       setHasMore(result.hasMore);
@@ -86,7 +83,7 @@ export function BlogPostList({ initialPosts, initialHasMore, initialTotal }: Blo
 
       pageRef.current = result.page;
       hasMoreRef.current = result.hasMore;
-      searchRef.current = search;
+      filtersRef.current = filters;
     } catch {
       setError("Não foi possível carregar os posts.");
     } finally {
@@ -96,17 +93,19 @@ export function BlogPostList({ initialPosts, initialHasMore, initialTotal }: Blo
   }, []);
 
   useEffect(() => {
-    if (skipInitialSearchRef.current && debouncedQuery === "") {
-      skipInitialSearchRef.current = false;
+    const filters = { title: debouncedTitle, tag: selectedTag };
+
+    if (skipInitialLoadRef.current && filters.title === "" && filters.tag === "") {
+      skipInitialLoadRef.current = false;
       return;
     }
 
-    loadPage(0, debouncedQuery, true);
-  }, [debouncedQuery, loadPage]);
+    loadPage(0, filters, true);
+  }, [debouncedTitle, selectedTag, loadPage]);
 
   const loadMore = useCallback(() => {
     if (!hasMoreRef.current || loadingRef.current) return;
-    loadPage(pageRef.current + 1, searchRef.current, false);
+    loadPage(pageRef.current + 1, filtersRef.current, false);
   }, [loadPage]);
 
   useEffect(() => {
@@ -126,38 +125,59 @@ export function BlogPostList({ initialPosts, initialHasMore, initialTotal }: Blo
     return () => observer.disconnect();
   }, [hasMore, loadMore, posts.length]);
 
+  const hasActiveFilters = debouncedTitle.length > 0 || selectedTag.length > 0;
+
   const showEmptyState = !loading && posts.length === 0;
-  const isSearching = debouncedQuery.length > 0;
 
-  return (
-    <div>
-      <div className="mb-8 flex justify-end">
-        <div className="glass-panel flex w-full max-w-6xl items-center gap-3 rounded-full border border-glass-border px-4 py-3 transition-colors focus-within:border-accent/40 sm:w-auto sm:min-w-[40rem]">
-          <SearchIcon />
-          <input
-            type="search"
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-            placeholder="Buscar por título ou tag"
-            className="font-mono min-w-0 flex-1 bg-transparent text-sm tracking-wide text-text-primary outline-none placeholder:text-text-secondary"
-            aria-label="Buscar posts por título ou tag"
-          />
-        </div>
-      </div>
+  const handleTagClick = (tag: string) => {
+    setSelectedTag((current) => (current === tag ? "" : tag));
+  };
 
+  const handleClearTag = () => {
+    setSelectedTag("");
+  };
+
+  const motionProps = shouldReduceMotion
+    ? {}
+    : {
+        initial: { opacity: 0, y: 16 },
+        whileInView: { opacity: 1, y: 0 },
+        viewport: { once: true, margin: "-40px" },
+        transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] as const },
+      };
+
+  const postsContent = (
+    <>
       {error && (
         <p className="font-mono mb-6 text-xs tracking-widest text-red-400 uppercase">{error}</p>
       )}
 
       {showEmptyState ? (
-        <p className="font-mono text-xs tracking-widest text-text-secondary uppercase">
-          {isSearching ? "Nenhum post encontrado." : "Nenhum post publicado ainda."}
-        </p>
+        hasActiveFilters ? (
+          <div className="glass-panel flex min-h-40 w-full items-center justify-center rounded-2xl">
+            <p className="font-mono text-center text-xs tracking-widest text-text-secondary uppercase">
+              Nenhum post encontrado.
+            </p>
+          </div>
+        ) : (
+          <p className="font-mono text-xs tracking-widest text-text-secondary uppercase">
+            Nenhum post publicado ainda.
+          </p>
+        )
       ) : (
         <>
-          <div className="grid gap-8 md:grid-cols-2">
-            {posts.map((post) => (
-              <PostCard key={post._id} post={post} />
+          <div className="flex flex-col gap-6">
+            {posts.map((post, index) => (
+              <motion.div
+                key={post._id}
+                {...motionProps}
+                transition={{
+                  ...(motionProps.transition ?? {}),
+                  delay: shouldReduceMotion ? 0 : index * 0.06,
+                }}
+              >
+                <PostCard post={post} />
+              </motion.div>
             ))}
           </div>
 
@@ -176,6 +196,20 @@ export function BlogPostList({ initialPosts, initialHasMore, initialTotal }: Blo
           )}
         </>
       )}
+    </>
+  );
+
+  return (
+    <div className="flex flex-col gap-10 lg:flex-row lg:gap-12">
+      <BlogFiltersSidebar
+        query={titleQuery}
+        onQueryChange={setTitleQuery}
+        selectedTag={selectedTag}
+        tags={availableTags}
+        onTagClick={handleTagClick}
+        onClearTags={handleClearTag}
+      />
+      <div className="min-w-0 flex-1">{postsContent}</div>
     </div>
   );
 }

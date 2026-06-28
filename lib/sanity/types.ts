@@ -14,10 +14,12 @@ export type PostListItem = {
   slug: string;
   excerpt?: string;
   publishedAt: string;
-  mainImage?: SanityImage;
+  listImage?: SanityImage;
   tags?: string[];
 };
 
 export type Post = PostListItem & {
+  heroImage?: SanityImage;
+  ogImage?: SanityImage;
   body: PortableTextBlock[];
 };

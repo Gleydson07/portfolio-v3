@@ -33,10 +33,54 @@ export const post = defineType({
       validation: (rule) => rule.required(),
     }),
     defineField({
-      name: "mainImage",
-      title: "Imagem de capa",
+      name: "listImage",
+      title: "Capa da listagem",
+      description: "1280×720 px (16:9). Aparece nos cards do blog.",
       type: "image",
       options: { hotspot: true },
+      fields: [
+        defineField({
+          name: "alt",
+          title: "Texto alternativo",
+          type: "string",
+        }),
+      ],
+    }),
+    defineField({
+      name: "heroImage",
+      title: "Capa do artigo",
+      description: "1920×1080 px (16:9). Aparece no topo da página do post.",
+      type: "image",
+      options: { hotspot: true },
+      fields: [
+        defineField({
+          name: "alt",
+          title: "Texto alternativo",
+          type: "string",
+        }),
+      ],
+    }),
+    defineField({
+      name: "ogImage",
+      title: "Imagem para redes sociais",
+      description: "1200×630 px (opcional). LinkedIn, X, WhatsApp. Se vazio, usa a capa do artigo.",
+      type: "image",
+      options: { hotspot: true },
+      fields: [
+        defineField({
+          name: "alt",
+          title: "Texto alternativo",
+          type: "string",
+        }),
+      ],
+    }),
+    defineField({
+      name: "mainImage",
+      title: "Imagem de capa (legado)",
+      description: "Campo antigo. Use as capas de listagem e artigo. Mantido apenas para posts já publicados.",
+      type: "image",
+      options: { hotspot: true },
+      hidden: ({ document }) => Boolean(document?.listImage || document?.heroImage),
       fields: [
         defineField({
           name: "alt",
@@ -131,11 +175,16 @@ export const post = defineType({
     },
   ],
   preview: {
-    select: { title: "title", media: "mainImage", date: "publishedAt" },
-    prepare({ title, media, date }) {
+    select: {
+      title: "title",
+      listImage: "listImage",
+      mainImage: "mainImage",
+      date: "publishedAt",
+    },
+    prepare({ title, listImage, mainImage, date }) {
       return {
         title,
-        media,
+        media: listImage ?? mainImage,
         subtitle: date ? new Date(date).toLocaleDateString("pt-BR") : undefined,
       };
     },

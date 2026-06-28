@@ -9,8 +9,9 @@ export async function GET(request: NextRequest) {
     POSTS_PAGE_SIZE,
     Math.max(1, Number.parseInt(searchParams.get("limit") ?? String(POSTS_PAGE_SIZE), 10) || POSTS_PAGE_SIZE)
   );
-  const search = searchParams.get("q") ?? "";
+  const title = searchParams.get("q") ?? "";
+  const tag = searchParams.get("tag") ?? "";
 
-  const result = await getPostsPage({ page, limit, search });
+  const result = await getPostsPage({ page, limit, title, tag });
   return NextResponse.json(result);
 }

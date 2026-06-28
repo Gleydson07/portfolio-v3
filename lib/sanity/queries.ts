@@ -1,7 +1,6 @@
 const postSearchFilter = `_type == "post" && defined(slug.current) && (
-  $search == "" ||
-  lower(title) match $titlePattern ||
-  count((tags)[lower(@) match $tagPattern]) > 0
+  ($titlePattern == "" || lower(title) match $titlePattern) &&
+  ($tag == "" || $tag in tags)
 )`;
 
 const postListProjection = `{
@@ -10,7 +9,7 @@ const postListProjection = `{
   "slug": slug.current,
   excerpt,
   publishedAt,
-  mainImage,
+  "listImage": coalesce(listImage, heroImage, mainImage),
   tags
 }`;
 
@@ -25,7 +24,9 @@ export const postBySlugQuery = `*[_type == "post" && slug.current == $slug][0] {
   "slug": slug.current,
   excerpt,
   publishedAt,
-  mainImage,
+  "listImage": coalesce(listImage, heroImage, mainImage),
+  "heroImage": coalesce(heroImage, listImage, mainImage),
+  "ogImage": coalesce(ogImage, heroImage, listImage, mainImage),
   tags,
   body
 }`;
@@ -45,3 +46,5 @@ export const postsByIdsQuery = `*[_type == "post" && _id in $ids]{
   title,
   "slug": slug.current
 }`;
+
+export const postTagsQuery = `array::unique(*[_type == "post" && defined(tags) && count(tags) > 0].tags[]) | order(@ asc)`;

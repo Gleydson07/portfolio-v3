@@ -34,7 +34,7 @@ export function ExperienceSection() {
             />
 
             <p className="font-mono text-[11px] tracking-widest text-text-secondary md:text-xs">
-              {job.workMode ? `${job.workMode} · ${job.period}` : job.period}
+              {job.period}
             </p>
 
             <h3 className="font-display mt-1 text-lg font-semibold text-accent md:text-xl">

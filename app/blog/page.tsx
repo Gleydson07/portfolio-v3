@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { BlogPostList } from "@/components/blog/BlogPostList";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { siteConfig } from "@/lib/content";
-import { getPostsPage } from "@/lib/sanity/fetch";
+import { getAllPostTags, getPostsPage } from "@/lib/sanity/fetch";
 
 export const metadata: Metadata = {
   title: "Blog",
@@ -11,7 +11,10 @@ export const metadata: Metadata = {
 };
 
 export default async function BlogPage() {
-  const { posts, total, hasMore } = await getPostsPage({ page: 0, search: "" });
+  const [{ posts, total, hasMore }, availableTags] = await Promise.all([
+    getPostsPage({ page: 0, title: "", tag: "" }),
+    getAllPostTags(),
+  ]);
 
   return (
     <div className="min-h-screen px-4 py-28 md:px-8">
@@ -31,7 +34,12 @@ export default async function BlogPage() {
             </p>
           </div>
         ) : (
-          <BlogPostList initialPosts={posts} initialHasMore={hasMore} initialTotal={total} />
+          <BlogPostList
+            initialPosts={posts}
+            initialHasMore={hasMore}
+            initialTotal={total}
+            availableTags={availableTags}
+          />
         )}
       </div>
     </div>

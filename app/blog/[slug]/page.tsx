@@ -6,8 +6,8 @@ import { PortableTextRenderer } from "@/components/blog/PortableTextRenderer";
 import { CommentsSection } from "@/components/blog/CommentsSection";
 import { getApprovedComments } from "@/lib/comments/moderate";
 import { siteConfig } from "@/lib/content";
+import { imageAlt, urlForHeroImage, urlForOgImage } from "@/lib/sanity/post-images";
 import { getPostBySlug, getPostSlugs } from "@/lib/sanity/fetch";
-import { urlForImage } from "@/lib/sanity/image";
 
 type PageProps = {
   params: Promise<{ slug: string }>;
@@ -31,9 +31,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 
   const description = post.excerpt ?? `Artigo de ${siteConfig.name}`;
-  const ogImage = post.mainImage
-    ? urlForImage(post.mainImage).width(1200).height(630).fit("crop").url()
-    : undefined;
+  const ogImage = post.ogImage ? urlForOgImage(post.ogImage) : undefined;
+  const ogAlt = imageAlt(post.ogImage, post.title);
 
   return {
     title: post.title,
@@ -45,7 +44,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       description,
       publishedTime: post.publishedAt,
       url: `${siteConfig.url}/blog/${slug}`,
-      images: ogImage ? [{ url: ogImage, alt: post.mainImage?.alt ?? post.title }] : undefined,
+      images: ogImage ? [{ url: ogImage, alt: ogAlt }] : undefined,
     },
     twitter: {
       card: "summary_large_image",
@@ -64,9 +63,8 @@ export default async function BlogPostPage({ params }: PageProps) {
     notFound();
   }
 
-  const imageUrl = post.mainImage
-    ? urlForImage(post.mainImage).width(1400).height(700).fit("crop").url()
-    : null;
+  const imageUrl = post.heroImage ? urlForHeroImage(post.heroImage) : null;
+  const heroAlt = imageAlt(post.heroImage, post.title);
 
   return (
     <article className="min-h-screen px-4 py-28 md:px-8">
@@ -114,7 +112,7 @@ export default async function BlogPostPage({ params }: PageProps) {
           <div className="relative mt-10 aspect-[16/9] overflow-hidden rounded-2xl">
             <Image
               src={imageUrl}
-              alt={post.mainImage?.alt ?? post.title}
+              alt={heroAlt}
               fill
               className="object-cover"
               priority

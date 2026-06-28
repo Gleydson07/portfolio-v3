@@ -1,45 +1,33 @@
-import Image from "next/image";
 import Link from "next/link";
+import { PostCover } from "@/components/blog/PostCover";
+import { PostTags } from "@/components/blog/PostTags";
+import { formatPostDateShort } from "@/lib/blog/format";
 import type { PostListItem } from "@/lib/sanity/types";
-import { urlForImage } from "@/lib/sanity/image";
-
-function formatDate(date: string) {
-  return new Intl.DateTimeFormat("pt-BR", { dateStyle: "long" }).format(new Date(date));
-}
 
 type PostCardProps = {
   post: PostListItem;
 };
 
 export function PostCard({ post }: PostCardProps) {
-  const imageUrl = post.mainImage
-    ? urlForImage(post.mainImage).width(800).height(450).fit("crop").url()
-    : null;
-
   return (
-    <article className="glass-panel group overflow-hidden rounded-2xl transition-colors hover:border-accent/30">
-      <Link href={`/blog/${post.slug}`} className="block">
-        {imageUrl && (
-          <div className="relative aspect-[16/9] overflow-hidden">
-            <Image
-              src={imageUrl}
-              alt={post.mainImage?.alt ?? post.title}
-              fill
-              className="object-cover transition-transform duration-500 group-hover:scale-105"
-              sizes="(max-width: 768px) 100vw, 50vw"
-            />
-          </div>
-        )}
+    <article className="glass-panel group min-h-44 overflow-hidden rounded-2xl transition-colors hover:border-accent/30 md:min-h-52">
+      <Link href={`/blog/${post.slug}`} className="flex min-h-44 md:min-h-52">
+        <PostCover
+          title={post.title}
+          image={post.listImage}
+          sizes="(max-width: 1024px) 45vw, 28vw"
+          className="relative aspect-[16/9] w-[45%] shrink-0 self-stretch overflow-hidden md:aspect-auto md:h-auto"
+        />
 
-        <div className="p-6 md:p-8">
+        <div className="flex min-w-0 flex-1 flex-col justify-center p-5 md:p-7">
           <time
             dateTime={post.publishedAt}
-            className="font-mono text-xs tracking-widest text-accent uppercase"
+            className="font-mono text-[10px] tracking-widest text-text-secondary uppercase md:text-xs"
           >
-            {formatDate(post.publishedAt)}
+            {formatPostDateShort(post.publishedAt)}
           </time>
 
-          <h2 className="font-display mt-3 text-2xl font-bold tracking-tight text-text-primary transition-colors group-hover:text-accent md:text-3xl">
+          <h2 className="font-display mt-2.5 text-xl font-bold tracking-tight text-text-primary transition-colors group-hover:text-accent md:text-2xl">
             {post.title}
           </h2>
 
@@ -49,18 +37,12 @@ export function PostCard({ post }: PostCardProps) {
             </p>
           )}
 
-          {post.tags && post.tags.length > 0 && (
-            <ul className="mt-5 flex flex-wrap gap-2">
-              {post.tags.map((tag) => (
-                <li
-                  key={tag}
-                  className="font-mono rounded-full border border-glass-border px-2.5 py-1 text-[10px] tracking-widest text-text-secondary uppercase"
-                >
-                  {tag}
-                </li>
-              ))}
-            </ul>
-          )}
+          <PostTags tags={post.tags} maxVisible={2} className="mt-4" />
+
+          <span className="font-mono mt-auto inline-flex items-center gap-2 self-end pt-4 text-[10px] tracking-widest text-accent uppercase opacity-70 transition-all duration-300 group-hover:translate-x-1 group-hover:opacity-100 md:opacity-0">
+            Ler artigo
+            <span aria-hidden="true">→</span>
+          </span>
         </div>
       </Link>
     </article>

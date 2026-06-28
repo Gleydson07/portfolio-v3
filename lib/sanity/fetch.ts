@@ -1,6 +1,13 @@
 import { POSTS_PAGE_SIZE } from "@/lib/blog/constants";
 import { getSanityClient } from "./client";
-import { postBySlugQuery, postsByIdsQuery, postsPaginatedQuery, postsSitemapQuery, postSlugsQuery } from "./queries";
+import {
+  postBySlugQuery,
+  postTagsQuery,
+  postsByIdsQuery,
+  postsPaginatedQuery,
+  postsSitemapQuery,
+  postSlugsQuery,
+} from "./queries";
 import { buildPostSearchParams } from "./search";
 import type { Post, PostListItem } from "./types";
 
@@ -15,24 +22,26 @@ export type PostsPageResult = {
 export async function getPostsPage({
   page = 0,
   limit = POSTS_PAGE_SIZE,
-  search = "",
+  title = "",
+  tag = "",
 }: {
   page?: number;
   limit?: number;
-  search?: string;
+  title?: string;
+  tag?: string;
 }): Promise<PostsPageResult> {
   const sanity = getSanityClient();
   if (!sanity) {
     return { posts: [], total: 0, page, limit, hasMore: false };
   }
 
-  const { search: normalizedSearch, titlePattern, tagPattern } = buildPostSearchParams(search);
+  const { titlePattern, tag: normalizedTag } = buildPostSearchParams(title, tag);
   const start = page * limit;
   const end = start + limit;
 
   const result = await sanity.fetch<{ posts: PostListItem[]; total: number }>(
     postsPaginatedQuery,
-    { search: normalizedSearch, titlePattern, tagPattern, start, end },
+    { titlePattern, tag: normalizedTag, start, end },
     { next: { tags: ["posts"] } }
   );
 
@@ -57,6 +66,14 @@ export async function getPostBySlug(slug: string): Promise<Post | null> {
     { slug },
     { next: { tags: [`post:${slug}`] } }
   );
+}
+
+export async function getAllPostTags(): Promise<string[]> {
+  const sanity = getSanityClient();
+  if (!sanity) return [];
+
+  const tags = await sanity.fetch<string[]>(postTagsQuery, {}, { next: { tags: ["posts"] } });
+  return (tags ?? []).filter(Boolean);
 }
 
 export async function getPostSlugs(): Promise<string[]> {

@@ -38,7 +38,6 @@ export const experienceContent = {
     {
       company: "Trinus Co",
       period: "07/2022 — 06/2026",
-      workMode: "Remoto",
       roles: [
         {
           title: "Desenvolvedor Full-stack",
@@ -58,9 +57,36 @@ export const experienceContent = {
       ],
     },
     {
+      company: "AutoInsp",
+      period: "10/2025 — 02/2026",
+      roles: [
+        {
+          title: "Desenvolvedor Full-stack",
+          impacts: [
+            "Comunicação com o time de produto e operações no levantamento de requisitos para novas features.",
+            "Refinamento e desenvolvimento de tarefas backend e frontend com Next.js, Node.js e arquitetura event-driven.",
+            "Integração com terceiros: consumo de APIs assíncronas via HTTP e processamento de eventos recebidos por webhooks.",
+            "Engenharia de prompt para interpretação de dados e geração de output com base em templates pré-definidos.",
+          ],
+        },
+      ],
+    },
+    {
+      company: "MB Labs",
+      period: "04/2025 — 08/2025",
+      roles: [
+        {
+          title: "Desenvolvedor Backend",
+          impacts: [
+            "Desenvolvimento backend com Node.js, inversão de dependências e Docker.",
+            "Integração com serviços de core na construção de apps bancários.",
+          ],
+        },
+      ],
+    },
+    {
       company: "Confi",
       period: "08/2021 — 05/2022",
-      workMode: "Remoto",
       roles: [
         {
           title: "Desenvolvedor ReactJS",

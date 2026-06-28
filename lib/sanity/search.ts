@@ -1,9 +1,9 @@
-export function buildPostSearchParams(search: string) {
-  const normalized = search.trim().toLowerCase();
+export function buildPostSearchParams(title: string, tag: string) {
+  const normalizedTitle = title.trim().toLowerCase();
+  const normalizedTag = tag.trim();
 
   return {
-    search: normalized,
-    titlePattern: normalized ? `*${normalized}*` : "",
-    tagPattern: normalized ? `*${normalized}*` : "",
+    titlePattern: normalizedTitle ? `*${normalizedTitle}*` : "",
+    tag: normalizedTag,
   };
 }

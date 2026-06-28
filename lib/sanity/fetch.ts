@@ -35,13 +35,13 @@ export async function getPostsPage({
     return { posts: [], total: 0, page, limit, hasMore: false };
   }
 
-  const { titlePattern, tag: normalizedTag } = buildPostSearchParams(title, tag);
+  const { titlePattern, filterTag } = buildPostSearchParams(title, tag);
   const start = page * limit;
   const end = start + limit;
 
   const result = await sanity.fetch<{ posts: PostListItem[]; total: number }>(
     postsPaginatedQuery,
-    { titlePattern, tag: normalizedTag, start, end },
+    { titlePattern, filterTag, start, end },
     { next: { tags: ["posts"] } }
   );
 

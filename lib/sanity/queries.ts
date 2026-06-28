@@ -1,6 +1,6 @@
 const postSearchFilter = `_type == "post" && defined(slug.current) && (
   ($titlePattern == "" || lower(title) match $titlePattern) &&
-  ($tag == "" || $tag in tags)
+  ($filterTag == "" || $filterTag in tags)
 )`;
 
 const postListProjection = `{

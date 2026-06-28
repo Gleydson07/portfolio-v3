@@ -4,6 +4,6 @@ export function buildPostSearchParams(title: string, tag: string) {
 
   return {
     titlePattern: normalizedTitle ? `*${normalizedTitle}*` : "",
-    tag: normalizedTag,
+    filterTag: normalizedTag,
   };
 }

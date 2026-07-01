@@ -1,8 +1,13 @@
 "use client";
 
-import { useActionState, useEffect, useState } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 import { submitComment, type SubmitCommentState } from "@/lib/comments/actions";
 import { COMMENT_BODY_MAX, COMMENT_NAME_MAX } from "@/lib/comments/validation";
+import {
+  captureCommentFormAbandoned,
+  captureCommentFormStarted,
+  captureCommentFormSubmitted,
+} from "@/lib/analytics/track";
 
 const initialState: SubmitCommentState = {
   ok: false,
@@ -37,13 +42,46 @@ export function CommentForm({ postId, postSlug, postTitle, disabled = false }: C
   const [state, formAction, pending] = useActionState(submitComment, initialState);
   const [authorName, setAuthorName] = useState("");
   const [body, setBody] = useState("");
+  const startedRef = useRef(false);
+  const submittedRef = useRef(false);
+  const authorNameRef = useRef("");
+  const bodyRef = useRef("");
+
+  const commentMeta = { postId, postSlug, postTitle };
 
   useEffect(() => {
-    if (state.ok) {
-      setAuthorName("");
-      setBody("");
-    }
-  }, [state]);
+    authorNameRef.current = authorName;
+    bodyRef.current = body;
+  }, [authorName, body]);
+
+  const markStarted = () => {
+    if (startedRef.current) return;
+    startedRef.current = true;
+    captureCommentFormStarted(commentMeta);
+  };
+
+  useEffect(() => {
+    if (!state.ok) return;
+    submittedRef.current = true;
+    captureCommentFormSubmitted({ postId, postSlug, postTitle });
+    setAuthorName("");
+    setBody("");
+  }, [state.ok, postId, postSlug, postTitle]);
+
+  useEffect(() => {
+    return () => {
+      if (!startedRef.current || submittedRef.current) return;
+
+      captureCommentFormAbandoned({
+        postId,
+        postSlug,
+        postTitle,
+        hadBody: bodyRef.current.trim().length > 0,
+        hadName: authorNameRef.current.trim().length > 0,
+        bodyLength: bodyRef.current.trim().length,
+      });
+    };
+  }, [postId, postSlug, postTitle]);
 
   if (disabled) {
     return (
@@ -84,7 +122,11 @@ export function CommentForm({ postId, postSlug, postTitle, disabled = false }: C
           value={authorName}
           maxLength={COMMENT_NAME_MAX}
           placeholder="Seu nome"
-          onChange={(event) => setAuthorName(clamp(event.target.value, COMMENT_NAME_MAX))}
+          onFocus={markStarted}
+          onChange={(event) => {
+            markStarted();
+            setAuthorName(clamp(event.target.value, COMMENT_NAME_MAX));
+          }}
           className="glass-panel w-full rounded-xl border border-glass-border bg-transparent px-4 py-3 text-sm text-text-primary outline-none focus:border-accent/40"
         />
       </div>
@@ -108,7 +150,11 @@ export function CommentForm({ postId, postSlug, postTitle, disabled = false }: C
           rows={5}
           value={body}
           placeholder="Escreva seu comentário..."
-          onChange={(event) => setBody(clamp(event.target.value, COMMENT_BODY_MAX))}
+          onFocus={markStarted}
+          onChange={(event) => {
+            markStarted();
+            setBody(clamp(event.target.value, COMMENT_BODY_MAX));
+          }}
           className="glass-panel w-full rounded-xl border border-glass-border bg-transparent px-4 py-3 text-sm leading-relaxed text-text-primary outline-none focus:border-accent/40"
         />
       </div>
@@ -116,6 +162,7 @@ export function CommentForm({ postId, postSlug, postTitle, disabled = false }: C
       <button
         type="submit"
         disabled={pending}
+        onClick={markStarted}
         className="font-mono rounded-full border border-accent/40 px-5 py-2.5 text-xs tracking-widest text-accent uppercase transition-colors hover:bg-accent/10 disabled:opacity-50"
       >
         {pending ? "Enviando..." : "Enviar comentário"}

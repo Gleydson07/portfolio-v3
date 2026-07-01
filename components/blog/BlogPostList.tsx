@@ -6,6 +6,7 @@ import { BlogFiltersSidebar } from "@/components/blog/BlogFiltersSidebar";
 import { PostCard } from "@/components/blog/PostCard";
 import { POSTS_PAGE_SIZE } from "@/lib/blog/constants";
 import { usePerfMode } from "@/lib/hooks/usePerfMode";
+import { captureBlogFilterApplied } from "@/lib/analytics/track";
 import type { PostsPageResult } from "@/lib/sanity/fetch";
 import type { PostListItem } from "@/lib/sanity/types";
 
@@ -63,12 +64,32 @@ export function BlogPostList({
   const hasMoreRef = useRef(initialHasMore);
   const filtersRef = useRef<PostFilters>({ title: "", tag: "" });
   const skipInitialLoadRef = useRef(true);
+  const skipInitialFilterTrackRef = useRef(true);
   const sentinelRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const timer = window.setTimeout(() => setDebouncedTitle(titleQuery), 300);
     return () => window.clearTimeout(timer);
   }, [titleQuery]);
+
+  useEffect(() => {
+    if (skipInitialFilterTrackRef.current) {
+      skipInitialFilterTrackRef.current = false;
+      return;
+    }
+
+    if (debouncedTitle) {
+      captureBlogFilterApplied({ filterType: "search", query: debouncedTitle });
+      return;
+    }
+
+    if (selectedTag) {
+      captureBlogFilterApplied({ filterType: "tag", tag: selectedTag });
+      return;
+    }
+
+    captureBlogFilterApplied({ filterType: "clear" });
+  }, [debouncedTitle, selectedTag]);
 
   const loadPage = useCallback(async (nextPage: number, filters: PostFilters, replace: boolean) => {
     if (loadingRef.current) return;

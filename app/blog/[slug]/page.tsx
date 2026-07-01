@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import Link from "next/link";
+import { BackToBlogLink } from "@/components/blog/BackToBlogLink";
 import { notFound } from "next/navigation";
 import { ArticleSpeechPlayer } from "@/components/blog/ArticleSpeechPlayer";
+import { TrackOnce } from "@/components/analytics/TrackOnce";
+import { AnalyticsEvents } from "@/lib/analytics/events";
 import { PortableTextRenderer } from "@/components/blog/PortableTextRenderer";
 import { PostReferences } from "@/components/blog/PostReferences";
 import { CommentsSection } from "@/components/blog/CommentsSection";
@@ -72,13 +74,17 @@ export default async function BlogPostPage({ params }: PageProps) {
 
   return (
     <article className="min-h-screen px-4 py-28 md:px-8">
+      <TrackOnce
+        event={AnalyticsEvents.blogPostViewed}
+        properties={{
+          post_id: post._id,
+          post_slug: post.slug,
+          post_title: post.title,
+          tags: post.tags,
+        }}
+      />
       <div className="mx-auto w-full max-w-3xl">
-        <Link
-          href="/blog"
-          className="font-mono mb-10 inline-flex items-center gap-2 text-xs tracking-widest text-text-secondary uppercase transition-colors hover:text-accent"
-        >
-          ← Voltar ao blog
-        </Link>
+        <BackToBlogLink />
 
         <header>
           <div className="flex items-center justify-between gap-4">
@@ -89,7 +95,11 @@ export default async function BlogPostPage({ params }: PageProps) {
               {formatDate(post.publishedAt)}
             </time>
 
-            <ArticleSpeechPlayer text={speechText} />
+            <ArticleSpeechPlayer
+              text={speechText}
+              postSlug={post.slug}
+              postTitle={post.title}
+            />
           </div>
 
           <h1 className="font-display mt-4 text-4xl font-bold tracking-tight text-text-primary md:text-5xl lg:text-6xl">

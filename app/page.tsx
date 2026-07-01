@@ -1,4 +1,5 @@
 import { SectionWrapper } from "@/components/layout/SectionWrapper";
+import { SectionViewTracker } from "@/components/analytics/SectionViewTracker";
 import { siteConfig } from "@/lib/content";
 import { HeroSection } from "@/components/sections/HeroSection";
 import { ExpertiseSection } from "@/components/sections/ExpertiseSection";
@@ -9,18 +10,19 @@ export default function Home() {
   return (
     <>
       <section id="inicio" className="relative scroll-mt-24">
+        <SectionViewTracker sectionId="inicio" sectionLabel="Início" />
         <HeroSection />
       </section>
 
-      <SectionWrapper id="expertise">
+      <SectionWrapper id="expertise" analyticsLabel="Expertise">
         <ExpertiseSection />
       </SectionWrapper>
 
-      <SectionWrapper id="experiencia">
+      <SectionWrapper id="experiencia" analyticsLabel="Trajetória">
         <ExperienceSection />
       </SectionWrapper>
 
-      <SectionWrapper id="contato">
+      <SectionWrapper id="contato" analyticsLabel="Contato">
         <ContactSection />
       </SectionWrapper>
 

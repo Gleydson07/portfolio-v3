@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useScrollTo } from "@/lib/hooks/useScrollTo";
+import { captureButtonClick } from "@/lib/analytics/track";
 import { navigation, type NavItem } from "@/lib/content";
 
 function isAnchorItem(item: NavItem): item is { id: string; label: string } {
@@ -64,8 +65,18 @@ export function HudNavigation({ reduceEffects = false }: HudNavigationProps) {
     return () => observer.disconnect();
   }, [isHome]);
 
-  const handleAnchorClick = (id: string) => {
+  const trackNavClick = (buttonId: string, buttonLabel: string, href?: string) => {
+    captureButtonClick({
+      buttonId,
+      buttonLabel,
+      location: "navigation",
+      href,
+    });
+  };
+
+  const handleAnchorClick = (id: string, label: string) => {
     setMenuOpen(false);
+    trackNavClick(`nav_${id}`, label, `#${id}`);
     scrollTo(id);
   };
 
@@ -85,7 +96,14 @@ export function HudNavigation({ reduceEffects = false }: HudNavigationProps) {
 
     if (!isAnchorItem(item)) {
       return (
-        <Link href={item.href} className={className} onClick={() => setMenuOpen(false)}>
+        <Link
+          href={item.href}
+          className={className}
+          onClick={() => {
+            setMenuOpen(false);
+            trackNavClick(`nav_${item.href.replace(/\//g, "_")}`, item.label, item.href);
+          }}
+        >
           {item.label}
           {active && <NavIndicator reduceEffects={reduceEffects} />}
         </Link>
@@ -94,7 +112,7 @@ export function HudNavigation({ reduceEffects = false }: HudNavigationProps) {
 
     if (isHome) {
       return (
-        <button onClick={() => handleAnchorClick(item.id)} className={className}>
+        <button onClick={() => handleAnchorClick(item.id, item.label)} className={className}>
           {item.label}
           {active && <NavIndicator reduceEffects={reduceEffects} />}
         </button>
@@ -116,7 +134,7 @@ export function HudNavigation({ reduceEffects = false }: HudNavigationProps) {
           onClick={(event) => {
             if (isHome) {
               event.preventDefault();
-              handleAnchorClick("inicio");
+              handleAnchorClick("inicio", "Início");
             } else {
               setMenuOpen(false);
             }
@@ -135,7 +153,15 @@ export function HudNavigation({ reduceEffects = false }: HudNavigationProps) {
 
         <button
           className="font-mono text-xs tracking-widest text-accent md:hidden"
-          onClick={() => setMenuOpen((prev) => !prev)}
+          onClick={() => {
+            const next = !menuOpen;
+            setMenuOpen(next);
+            captureButtonClick({
+              buttonId: "nav_mobile_menu",
+              buttonLabel: next ? "Abrir menu" : "Fechar menu",
+              location: "navigation",
+            });
+          }}
           aria-expanded={menuOpen}
           aria-label="Abrir menu de navegação"
         >
@@ -151,7 +177,7 @@ export function HudNavigation({ reduceEffects = false }: HudNavigationProps) {
                 {isAnchorItem(item) ? (
                   isHome ? (
                     <button
-                      onClick={() => handleAnchorClick(item.id)}
+                      onClick={() => handleAnchorClick(item.id, item.label)}
                       className={`font-mono w-full py-2 text-left text-xs tracking-widest uppercase transition-colors hover:text-accent ${
                         isItemActive(item) ? "nav-link-active" : "text-text-secondary"
                       }`}

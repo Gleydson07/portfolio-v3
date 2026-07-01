@@ -3,6 +3,7 @@
 import { useId, useState, type ReactNode } from "react";
 import type { PostReference, PostReferenceKind } from "@/lib/sanity/types";
 import { REFERENCE_KIND_LABELS } from "@/lib/blog/references";
+import { captureButtonClick } from "@/lib/analytics/track";
 
 type PostReferencesProps = {
   references: PostReference[];
@@ -136,7 +137,17 @@ export function PostReferences({ references }: PostReferencesProps) {
         id={headingId}
         aria-expanded={expanded}
         aria-controls={panelId}
-        onClick={() => setExpanded((current) => !current)}
+        onClick={() => {
+          setExpanded((current) => {
+            const next = !current;
+            captureButtonClick({
+              buttonId: "post_references_toggle",
+              buttonLabel: next ? "Expandir referências" : "Recolher referências",
+              location: "blog_post",
+            });
+            return next;
+          });
+        }}
         className="flex w-full items-center justify-between gap-3 text-left"
       >
         <span className="font-mono text-xs tracking-widest text-text-secondary uppercase">

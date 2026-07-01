@@ -50,7 +50,13 @@ function HeroCopy({ animated }: { animated: boolean }) {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.7, duration: 0.6 }}
       >
-        <MagneticButton href={contactContent.links[0].href} external>
+          <MagneticButton
+            href={contactContent.links[0].href}
+            external
+            analyticsId="hero_linkedin"
+            analyticsLabel={heroContent.ctaSecondary}
+            analyticsLocation="hero"
+          >
           {heroContent.ctaSecondary}
         </MagneticButton>
       </motion.div>

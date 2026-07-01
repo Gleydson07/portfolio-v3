@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { BlogPostList } from "@/components/blog/BlogPostList";
+import { TrackOnce } from "@/components/analytics/TrackOnce";
+import { AnalyticsEvents } from "@/lib/analytics/events";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { siteConfig } from "@/lib/content";
 import { getAllPostTags, getPostsPage } from "@/lib/sanity/fetch";
@@ -18,6 +20,7 @@ export default async function BlogPage() {
 
   return (
     <div className="min-h-screen px-4 py-28 md:px-8">
+      <TrackOnce event={AnalyticsEvents.blogListViewed} properties={{ total_posts: total }} />
       <div className="mx-auto w-full max-w-6xl">
         <SectionHeading
           hudLabel="// BLOG"

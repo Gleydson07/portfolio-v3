@@ -4,6 +4,7 @@ import { motion, useReducedMotion } from "framer-motion";
 import { useState } from "react";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { contactContent } from "@/lib/content";
+import { captureButtonClick } from "@/lib/analytics/track";
 
 function getLinkHint(href: string, label: string) {
   if (href.startsWith("mailto:")) return href.replace("mailto:", "");
@@ -63,6 +64,13 @@ function ContactLink({
     event.preventDefault();
     event.stopPropagation();
 
+    captureButtonClick({
+      buttonId: "contact_copy_email",
+      buttonLabel: "Copiar e-mail",
+      location: "contact_section",
+      href,
+    });
+
     try {
       await navigator.clipboard.writeText(email);
       setCopied(true);
@@ -87,7 +95,18 @@ function ContactLink({
           <CopyIcon />
         </button>
 
-        <a href={href} className="flex min-h-full flex-col justify-between pr-8">
+        <a
+          href={href}
+          onClick={() =>
+            captureButtonClick({
+              buttonId: `contact_${label.toLowerCase().replace(/\s+/g, "_")}`,
+              buttonLabel: label,
+              location: "contact_section",
+              href,
+            })
+          }
+          className="flex min-h-full flex-col justify-between pr-8"
+        >
           <div>
             <p className="font-mono text-[10px] tracking-[0.25em] text-accent uppercase md:text-xs">
               {label}
@@ -108,6 +127,14 @@ function ContactLink({
       href={href}
       target="_blank"
       rel="noopener noreferrer"
+      onClick={() =>
+        captureButtonClick({
+          buttonId: `contact_${label.toLowerCase().replace(/\s+/g, "_")}`,
+          buttonLabel: label,
+          location: "contact_section",
+          href,
+        })
+      }
       {...cardMotion}
       className="group glass-panel flex min-h-[120px] flex-col justify-between rounded-lg p-5 transition-colors hover:border-accent/40 hover:bg-accent/5 md:p-6"
     >

@@ -1,10 +1,13 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
+import { captureArticleSpeechControl } from "@/lib/analytics/track";
 
 type ArticleSpeechPlayerProps = {
   text: string;
   className?: string;
+  postSlug: string;
+  postTitle: string;
 };
 
 type PlaybackState = "idle" | "playing" | "paused";
@@ -127,13 +130,18 @@ function useBrazilianPortugueseVoice() {
   return { voice, supported };
 }
 
-export function ArticleSpeechPlayer({ text, className = "" }: ArticleSpeechPlayerProps) {
+export function ArticleSpeechPlayer({
+  text,
+  className = "",
+  postSlug,
+  postTitle,
+}: ArticleSpeechPlayerProps) {
   const [playbackState, setPlaybackState] = useState<PlaybackState>("idle");
   const [statusMessage, setStatusMessage] = useState("");
   const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
   const { voice, supported } = useBrazilianPortugueseVoice();
 
-  const stop = useCallback(() => {
+  const cancelSpeech = useCallback(() => {
     if (typeof window !== "undefined" && "speechSynthesis" in window) {
       window.speechSynthesis.cancel();
     }
@@ -142,10 +150,16 @@ export function ArticleSpeechPlayer({ text, className = "" }: ArticleSpeechPlaye
     setStatusMessage("");
   }, []);
 
+  const stop = useCallback(() => {
+    cancelSpeech();
+    captureArticleSpeechControl("stop", { postSlug, postTitle });
+  }, [cancelSpeech, postSlug, postTitle]);
+
   const play = useCallback(() => {
     if (!text || typeof window === "undefined" || !("speechSynthesis" in window)) return;
 
     window.speechSynthesis.cancel();
+    captureArticleSpeechControl("play", { postSlug, postTitle });
 
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = "pt-BR";
@@ -162,17 +176,19 @@ export function ArticleSpeechPlayer({ text, className = "" }: ArticleSpeechPlaye
       utteranceRef.current = null;
       setPlaybackState("idle");
       setStatusMessage("Leitura concluída.");
+      captureArticleSpeechControl("completed", { postSlug, postTitle });
     };
 
     utterance.onerror = () => {
       utteranceRef.current = null;
       setPlaybackState("idle");
       setStatusMessage("Não foi possível iniciar a leitura.");
+      captureArticleSpeechControl("error", { postSlug, postTitle });
     };
 
     utteranceRef.current = utterance;
     window.speechSynthesis.speak(utterance);
-  }, [text, voice]);
+  }, [text, voice, postSlug, postTitle]);
 
   const pause = useCallback(() => {
     if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
@@ -181,7 +197,8 @@ export function ArticleSpeechPlayer({ text, className = "" }: ArticleSpeechPlaye
     window.speechSynthesis.pause();
     setPlaybackState("paused");
     setStatusMessage("Leitura pausada.");
-  }, [playbackState]);
+    captureArticleSpeechControl("pause", { postSlug, postTitle });
+  }, [playbackState, postSlug, postTitle]);
 
   const resume = useCallback(() => {
     if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
@@ -190,9 +207,10 @@ export function ArticleSpeechPlayer({ text, className = "" }: ArticleSpeechPlaye
     window.speechSynthesis.resume();
     setPlaybackState("playing");
     setStatusMessage("Leitura retomada.");
-  }, [playbackState]);
+    captureArticleSpeechControl("resume", { postSlug, postTitle });
+  }, [playbackState, postSlug, postTitle]);
 
-  useEffect(() => () => stop(), [stop]);
+  useEffect(() => () => cancelSpeech(), [cancelSpeech]);
 
   if (!text) return null;
 

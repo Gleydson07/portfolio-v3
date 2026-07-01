@@ -2,6 +2,7 @@
 
 import { motion, useMotionValue, useReducedMotion, useSpring } from "framer-motion";
 import { MouseEvent, ReactNode, useRef } from "react";
+import { captureButtonClick } from "@/lib/analytics/track";
 
 interface MagneticButtonProps {
   children: ReactNode;
@@ -9,6 +10,9 @@ interface MagneticButtonProps {
   onClick?: () => void;
   href?: string;
   external?: boolean;
+  analyticsId?: string;
+  analyticsLabel?: string;
+  analyticsLocation?: string;
 }
 
 export function MagneticButton({
@@ -17,6 +21,9 @@ export function MagneticButton({
   onClick,
   href,
   external,
+  analyticsId,
+  analyticsLabel,
+  analyticsLocation,
 }: MagneticButtonProps) {
   const shouldReduceMotion = useReducedMotion();
   const ref = useRef<HTMLDivElement>(null);
@@ -39,6 +46,16 @@ export function MagneticButton({
     y.set(0);
   };
 
+  const trackClick = () => {
+    if (!analyticsId && !analyticsLabel) return;
+    captureButtonClick({
+      buttonId: analyticsId ?? analyticsLabel ?? "magnetic_button",
+      buttonLabel: analyticsLabel ?? String(children),
+      location: analyticsLocation ?? "unknown",
+      href,
+    });
+  };
+
   const inner = (
     <motion.span
       style={shouldReduceMotion ? undefined : { x: springX, y: springY }}
@@ -59,13 +76,21 @@ export function MagneticButton({
       {href ? (
         <a
           href={href}
+          onClick={trackClick}
           {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
           className="inline-block"
         >
           {inner}
         </a>
       ) : (
-        <button type="button" onClick={onClick} className="inline-block">
+        <button
+          type="button"
+          onClick={() => {
+            trackClick();
+            onClick?.();
+          }}
+          className="inline-block"
+        >
           {inner}
         </button>
       )}

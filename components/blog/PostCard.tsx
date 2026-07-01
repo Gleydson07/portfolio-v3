@@ -1,7 +1,10 @@
+"use client";
+
 import Link from "next/link";
 import { PostCover } from "@/components/blog/PostCover";
 import { PostTags } from "@/components/blog/PostTags";
 import { formatPostDateShort } from "@/lib/blog/format";
+import { captureBlogPostClicked } from "@/lib/analytics/track";
 import type { PostListItem } from "@/lib/sanity/types";
 
 type PostCardProps = {
@@ -11,7 +14,18 @@ type PostCardProps = {
 export function PostCard({ post }: PostCardProps) {
   return (
     <article className="glass-panel group min-h-44 overflow-hidden rounded-2xl transition-colors hover:border-accent/30 md:min-h-52">
-      <Link href={`/blog/${post.slug}`} className="flex min-h-44 md:min-h-52">
+      <Link
+        href={`/blog/${post.slug}`}
+        className="flex min-h-44 md:min-h-52"
+        onClick={() =>
+          captureBlogPostClicked({
+            postId: post._id,
+            postSlug: post.slug,
+            postTitle: post.title,
+            source: "blog_list_card",
+          })
+        }
+      >
         <PostCover
           title={post.title}
           image={post.listImage}

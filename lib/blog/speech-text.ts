@@ -1,5 +1,7 @@
 import { toPlainText } from "@portabletext/toolkit";
 import type { PortableTextBlock } from "@portabletext/types";
+import { referencesSpeechText } from "@/lib/blog/references";
+import type { PostReference } from "@/lib/sanity/types";
 
 type PortableTextNode = PortableTextBlock | Record<string, unknown>;
 
@@ -41,6 +43,7 @@ export function buildArticleSpeechText(
   title: string,
   excerpt: string | undefined,
   body: PortableTextBlock[],
+  references?: PostReference[],
 ): string {
   const parts = [title.trim()];
 
@@ -51,6 +54,11 @@ export function buildArticleSpeechText(
   const bodyText = toPlainText(blocksForSpeech(body)).trim();
   if (bodyText) {
     parts.push(bodyText);
+  }
+
+  const referencesText = references ? referencesSpeechText(references) : "";
+  if (referencesText) {
+    parts.push(referencesText);
   }
 
   return parts.join(". ");

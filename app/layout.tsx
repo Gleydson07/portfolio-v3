@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, JetBrains_Mono, Space_Grotesk } from "next/font/google";
 import { SiteChrome } from "@/components/layout/SiteChrome";
+import { PostHogProvider } from "@/components/providers/PostHogProvider";
 import { siteConfig } from "@/lib/content";
 import "./globals.css";
 
@@ -74,7 +75,9 @@ export default function RootLayout({
       className={`${spaceGrotesk.variable} ${inter.variable} ${jetbrainsMono.variable}`}
     >
       <body className="antialiased">
-        <SiteChrome>{children}</SiteChrome>
+        <PostHogProvider>
+          <SiteChrome>{children}</SiteChrome>
+        </PostHogProvider>
       </body>
     </html>
   );

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArticleSpeechPlayer } from "@/components/blog/ArticleSpeechPlayer";
 import { PortableTextRenderer } from "@/components/blog/PortableTextRenderer";
+import { PostReferences } from "@/components/blog/PostReferences";
 import { CommentsSection } from "@/components/blog/CommentsSection";
 import { buildArticleSpeechText } from "@/lib/blog/speech-text";
 import { getApprovedComments } from "@/lib/comments/moderate";
@@ -67,7 +68,7 @@ export default async function BlogPostPage({ params }: PageProps) {
 
   const imageUrl = post.heroImage ? urlForHeroImage(post.heroImage) : null;
   const heroAlt = imageAlt(post.heroImage, post.title);
-  const speechText = buildArticleSpeechText(post.title, post.excerpt, post.body);
+  const speechText = buildArticleSpeechText(post.title, post.excerpt, post.body, post.references);
 
   return (
     <article className="min-h-screen px-4 py-28 md:px-8">
@@ -131,6 +132,10 @@ export default async function BlogPostPage({ params }: PageProps) {
         <div className="mt-12">
           <PortableTextRenderer value={post.body} />
         </div>
+
+        {post.references && post.references.length > 0 && (
+          <PostReferences references={post.references} />
+        )}
 
         <CommentsSection
           postId={post._id}

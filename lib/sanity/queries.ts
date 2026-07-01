@@ -28,7 +28,14 @@ export const postBySlugQuery = `*[_type == "post" && slug.current == $slug][0] {
   "heroImage": coalesce(heroImage, listImage),
   "ogImage": coalesce(ogImage, heroImage, listImage),
   tags,
-  body
+  body,
+  references[]{
+    _key,
+    title,
+    url,
+    kind,
+    note
+  }
 }`;
 
 export const postSlugsQuery = `*[_type == "post" && defined(slug.current)]{

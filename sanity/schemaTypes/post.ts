@@ -152,6 +152,13 @@ export const post = defineType({
       ],
       validation: (rule) => rule.required(),
     }),
+    defineField({
+      name: "references",
+      title: "Referências, fontes e estudos",
+      description: "Lista exibida ao final do artigo, antes dos comentários.",
+      type: "array",
+      of: [{ type: "postReference" }],
+    }),
   ],
   orderings: [
     {

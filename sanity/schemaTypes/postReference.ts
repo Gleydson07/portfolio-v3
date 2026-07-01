@@ -1,5 +1,17 @@
 import { defineField, defineType } from "sanity";
 
+const KIND_LABELS: Record<string, string> = {
+  article: "Artigo",
+  book: "Livro",
+  study: "Estudo",
+  video: "Vídeo",
+  documentation: "Documentação",
+  publication: "Publicação/Postagem",
+  course: "Curso/Treinamento",
+  tool: "Ferramenta",
+  other: "Outro",
+};
+
 export const postReference = defineType({
   name: "postReference",
   title: "Referência",
@@ -28,6 +40,9 @@ export const postReference = defineType({
           { title: "Estudo / paper", value: "study" },
           { title: "Vídeo", value: "video" },
           { title: "Documentação", value: "documentation" },
+          { title: "Publicação/Postagem", value: "publication" },
+          { title: "Curso/Treinamento", value: "course" },
+          { title: "Ferramenta", value: "tool" },
           { title: "Outro", value: "other" },
         ],
         layout: "dropdown",
@@ -49,18 +64,9 @@ export const postReference = defineType({
       url: "url",
     },
     prepare({ title, kind, url }) {
-      const kindLabels: Record<string, string> = {
-        article: "Artigo",
-        book: "Livro",
-        study: "Estudo",
-        video: "Vídeo",
-        documentation: "Documentação",
-        other: "Outro",
-      };
-
       return {
         title,
-        subtitle: [kindLabels[kind] ?? kind, url].filter(Boolean).join(" · "),
+        subtitle: [KIND_LABELS[kind] ?? kind, url].filter(Boolean).join(" · "),
       };
     },
   },

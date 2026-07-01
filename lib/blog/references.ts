@@ -6,6 +6,9 @@ export const REFERENCE_KIND_LABELS: Record<PostReferenceKind, string> = {
   study: "Estudo",
   video: "Vídeo",
   documentation: "Documentação",
+  publication: "Publicação/Postagem",
+  course: "Curso/Treinamento",
+  tool: "Ferramenta",
   other: "Outro",
 };
 

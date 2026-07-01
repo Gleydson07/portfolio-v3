@@ -14,6 +14,9 @@ export type PostReferenceKind =
   | "study"
   | "video"
   | "documentation"
+  | "publication"
+  | "course"
+  | "tool"
   | "other";
 
 export type PostReference = {

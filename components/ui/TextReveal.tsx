@@ -2,6 +2,7 @@
 
 import { motion, useReducedMotion } from "framer-motion";
 import { ReactNode } from "react";
+import { usePerfMode } from "@/lib/hooks/usePerfMode";
 
 interface TextRevealProps {
   text: string;
@@ -19,9 +20,10 @@ export function TextReveal({
   mode = "words",
 }: TextRevealProps) {
   const shouldReduceMotion = useReducedMotion();
+  const { effectsEnabled } = usePerfMode();
   const items = mode === "words" ? text.split(" ") : text.split("");
 
-  if (shouldReduceMotion) {
+  if (shouldReduceMotion || !effectsEnabled) {
     return <Tag className={className}>{text}</Tag>;
   }
 
@@ -34,12 +36,11 @@ export function TextReveal({
   };
 
   const child = {
-    hidden: { opacity: 0, y: 24, filter: "blur(8px)" },
+    hidden: { opacity: 0, y: 16 },
     visible: {
       opacity: 1,
       y: 0,
-      filter: "blur(0px)",
-      transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] as const },
+      transition: { duration: 0.45, ease: [0.22, 1, 0.36, 1] as const },
     },
   };
 
@@ -53,11 +54,7 @@ export function TextReveal({
         viewport={{ once: true, margin: "-60px" }}
       >
         {items.map((item, index) => (
-          <motion.span
-            key={`${item}-${index}`}
-            variants={child}
-            className="inline-block"
-          >
+          <motion.span key={`${item}-${index}`} variants={child} className="inline-block">
             {item}
             {mode === "words" && index < items.length - 1 ? "\u00A0" : ""}
           </motion.span>

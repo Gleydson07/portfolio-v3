@@ -75,21 +75,6 @@ export const post = defineType({
       ],
     }),
     defineField({
-      name: "mainImage",
-      title: "Imagem de capa (legado)",
-      description: "Campo antigo. Use as capas de listagem e artigo. Mantido apenas para posts já publicados.",
-      type: "image",
-      options: { hotspot: true },
-      hidden: ({ document }) => Boolean(document?.listImage || document?.heroImage),
-      fields: [
-        defineField({
-          name: "alt",
-          title: "Texto alternativo",
-          type: "string",
-        }),
-      ],
-    }),
-    defineField({
       name: "tags",
       title: "Tags",
       type: "array",
@@ -160,6 +145,7 @@ export const post = defineType({
               { title: "Bash", value: "bash" },
               { title: "JSON", value: "json" },
               { title: "SQL", value: "sql" },
+              { title: "Texto", value: "text" },
             ],
           },
         },
@@ -178,13 +164,13 @@ export const post = defineType({
     select: {
       title: "title",
       listImage: "listImage",
-      mainImage: "mainImage",
+      heroImage: "heroImage",
       date: "publishedAt",
     },
-    prepare({ title, listImage, mainImage, date }) {
+    prepare({ title, listImage, heroImage, date }) {
       return {
         title,
-        media: listImage ?? mainImage,
+        media: listImage ?? heroImage,
         subtitle: date ? new Date(date).toLocaleDateString("pt-BR") : undefined,
       };
     },

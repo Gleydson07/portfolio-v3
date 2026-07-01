@@ -9,7 +9,7 @@ const postListProjection = `{
   "slug": slug.current,
   excerpt,
   publishedAt,
-  "listImage": coalesce(listImage, heroImage, mainImage),
+  "listImage": coalesce(listImage, heroImage),
   tags
 }`;
 
@@ -24,9 +24,9 @@ export const postBySlugQuery = `*[_type == "post" && slug.current == $slug][0] {
   "slug": slug.current,
   excerpt,
   publishedAt,
-  "listImage": coalesce(listImage, heroImage, mainImage),
-  "heroImage": coalesce(heroImage, listImage, mainImage),
-  "ogImage": coalesce(ogImage, heroImage, listImage, mainImage),
+  "listImage": coalesce(listImage, heroImage),
+  "heroImage": coalesce(heroImage, listImage),
+  "ogImage": coalesce(ogImage, heroImage, listImage),
   tags,
   body
 }`;

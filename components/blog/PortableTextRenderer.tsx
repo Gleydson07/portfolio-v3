@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { PortableText, type PortableTextComponents } from "@portabletext/react";
 import type { PortableTextBlock } from "@portabletext/types";
+import { CodeBlock } from "@/components/blog/CodeBlock";
 import { urlForImage } from "@/lib/sanity/image";
 
 const components: PortableTextComponents = {
@@ -68,11 +69,7 @@ const components: PortableTextComponents = {
         </figure>
       );
     },
-    code: ({ value }) => (
-      <pre className="my-8 overflow-x-auto rounded-xl border border-glass-border bg-black/40 p-5 font-mono text-sm leading-relaxed text-text-primary">
-        <code>{value.code}</code>
-      </pre>
-    ),
+    code: ({ value }) => <CodeBlock code={value.code} language={value.language} />,
   },
   list: {
     bullet: ({ children }) => (

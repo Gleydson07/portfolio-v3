@@ -11,7 +11,27 @@ function isAnchorItem(item: NavItem): item is { id: string; label: string } {
   return "id" in item && Boolean(item.id);
 }
 
-export function HudNavigation() {
+type HudNavigationProps = {
+  reduceEffects?: boolean;
+};
+
+function NavIndicator({ reduceEffects }: { reduceEffects: boolean }) {
+  if (reduceEffects) {
+    return (
+      <span className="absolute -bottom-1 left-1/2 h-[2px] w-4 -translate-x-1/2 rounded-full bg-accent" />
+    );
+  }
+
+  return (
+    <motion.span
+      layoutId="nav-indicator"
+      className="absolute -bottom-1 left-1/2 h-[2px] w-4 -translate-x-1/2 rounded-full bg-accent"
+      transition={{ type: "spring", stiffness: 380, damping: 30 }}
+    />
+  );
+}
+
+export function HudNavigation({ reduceEffects = false }: HudNavigationProps) {
   const pathname = usePathname();
   const isHome = pathname === "/";
   const [activeSection, setActiveSection] = useState<string>("inicio");
@@ -67,13 +87,7 @@ export function HudNavigation() {
       return (
         <Link href={item.href} className={className} onClick={() => setMenuOpen(false)}>
           {item.label}
-          {active && (
-            <motion.span
-              layoutId="nav-indicator"
-              className="absolute -bottom-1 left-1/2 h-[2px] w-4 -translate-x-1/2 rounded-full bg-accent"
-              transition={{ type: "spring", stiffness: 380, damping: 30 }}
-            />
-          )}
+          {active && <NavIndicator reduceEffects={reduceEffects} />}
         </Link>
       );
     }
@@ -82,13 +96,7 @@ export function HudNavigation() {
       return (
         <button onClick={() => handleAnchorClick(item.id)} className={className}>
           {item.label}
-          {active && (
-            <motion.span
-              layoutId="nav-indicator"
-              className="absolute -bottom-1 left-1/2 h-[2px] w-4 -translate-x-1/2 rounded-full bg-accent"
-              transition={{ type: "spring", stiffness: 380, damping: 30 }}
-            />
-          )}
+          {active && <NavIndicator reduceEffects={reduceEffects} />}
         </button>
       );
     }
@@ -136,11 +144,7 @@ export function HudNavigation() {
       </nav>
 
       {menuOpen && (
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="glass-panel nav-blur mx-auto mt-2 max-w-6xl rounded-2xl p-4 md:hidden"
-        >
+        <div className="glass-panel nav-blur mx-auto mt-2 max-w-6xl rounded-2xl p-4 md:hidden">
           <ul className="flex flex-col gap-2">
             {navigation.map((item) => (
               <li key={isAnchorItem(item) ? item.id : item.href}>
@@ -179,7 +183,7 @@ export function HudNavigation() {
               </li>
             ))}
           </ul>
-        </motion.div>
+        </div>
       )}
     </header>
   );

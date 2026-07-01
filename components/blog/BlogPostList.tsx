@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { BlogFiltersSidebar } from "@/components/blog/BlogFiltersSidebar";
 import { PostCard } from "@/components/blog/PostCard";
 import { POSTS_PAGE_SIZE } from "@/lib/blog/constants";
+import { usePerfMode } from "@/lib/hooks/usePerfMode";
 import type { PostsPageResult } from "@/lib/sanity/fetch";
 import type { PostListItem } from "@/lib/sanity/types";
 
@@ -45,6 +46,8 @@ export function BlogPostList({
   availableTags,
 }: BlogPostListProps) {
   const shouldReduceMotion = useReducedMotion();
+  const { effectsEnabled } = usePerfMode();
+  const animatePosts = effectsEnabled && !shouldReduceMotion;
 
   const [titleQuery, setTitleQuery] = useState("");
   const [debouncedTitle, setDebouncedTitle] = useState("");
@@ -137,14 +140,14 @@ export function BlogPostList({
     setSelectedTag("");
   };
 
-  const motionProps = shouldReduceMotion
-    ? {}
-    : {
+  const motionProps = animatePosts
+    ? {
         initial: { opacity: 0, y: 16 },
         whileInView: { opacity: 1, y: 0 },
         viewport: { once: true, margin: "-40px" },
         transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] as const },
-      };
+      }
+    : {};
 
   const postsContent = (
     <>
@@ -173,7 +176,7 @@ export function BlogPostList({
                 {...motionProps}
                 transition={{
                   ...(motionProps.transition ?? {}),
-                  delay: shouldReduceMotion ? 0 : index * 0.06,
+                  delay: animatePosts ? index * 0.06 : 0,
                 }}
               >
                 <PostCard post={post} />

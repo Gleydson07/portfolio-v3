@@ -1,12 +1,32 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { getShouldReduceEffects } from "@/lib/perf-mode";
 
-export function GridBackground() {
+type GridBackgroundProps = {
+  animated?: boolean;
+};
+
+function StaticGrid() {
+  return (
+    <div
+      className="pointer-events-none fixed inset-0 z-0 opacity-80"
+      style={{
+        backgroundImage:
+          "linear-gradient(rgba(0, 212, 255, 0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 212, 255, 0.04) 1px, transparent 1px)",
+        backgroundSize: "60px 60px",
+      }}
+      aria-hidden="true"
+    />
+  );
+}
+
+export function GridBackground({ animated = true }: GridBackgroundProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
-    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (!animated || getShouldReduceEffects()) return;
+
     const canvas = canvasRef.current;
     if (!canvas) return;
 
@@ -15,24 +35,20 @@ export function GridBackground() {
 
     let animationId = 0;
     let offset = 0;
+    let isVisible = !document.hidden;
 
     const resize = () => {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
     };
 
-    const drawGrid = (animated: boolean) => {
-      if (!ctx) return;
-
+    const drawGrid = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       const gridSize = 60;
       ctx.strokeStyle = "rgba(0, 212, 255, 0.04)";
       ctx.lineWidth = 1;
-
-      if (animated) {
-        offset = (offset + 0.15) % gridSize;
-      }
+      offset = (offset + 0.15) % gridSize;
 
       for (let x = 0; x <= canvas.width; x += gridSize) {
         ctx.beginPath();
@@ -41,8 +57,7 @@ export function GridBackground() {
         ctx.stroke();
       }
 
-      const startY = animated ? -gridSize + offset : 0;
-      for (let y = startY; y <= canvas.height; y += gridSize) {
+      for (let y = -gridSize + offset; y <= canvas.height; y += gridSize) {
         ctx.beginPath();
         ctx.moveTo(0, y);
         ctx.lineTo(canvas.width, y);
@@ -51,29 +66,36 @@ export function GridBackground() {
     };
 
     const render = () => {
-      drawGrid(!prefersReducedMotion);
-      if (!prefersReducedMotion) {
+      if (!isVisible) {
         animationId = requestAnimationFrame(render);
+        return;
       }
+
+      drawGrid();
+      animationId = requestAnimationFrame(render);
     };
 
-    const handleResize = () => {
-      resize();
-      if (prefersReducedMotion) {
-        drawGrid(false);
-      }
+    const handleResize = () => resize();
+    const handleVisibility = () => {
+      isVisible = !document.hidden;
     };
 
     resize();
     render();
 
     window.addEventListener("resize", handleResize);
+    document.addEventListener("visibilitychange", handleVisibility);
 
     return () => {
       cancelAnimationFrame(animationId);
       window.removeEventListener("resize", handleResize);
+      document.removeEventListener("visibilitychange", handleVisibility);
     };
-  }, []);
+  }, [animated]);
+
+  if (!animated) {
+    return <StaticGrid />;
+  }
 
   return (
     <canvas

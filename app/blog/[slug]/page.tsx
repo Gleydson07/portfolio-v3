@@ -2,8 +2,10 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { ArticleSpeechPlayer } from "@/components/blog/ArticleSpeechPlayer";
 import { PortableTextRenderer } from "@/components/blog/PortableTextRenderer";
 import { CommentsSection } from "@/components/blog/CommentsSection";
+import { buildArticleSpeechText } from "@/lib/blog/speech-text";
 import { getApprovedComments } from "@/lib/comments/moderate";
 import { siteConfig } from "@/lib/content";
 import { imageAlt, urlForHeroImage, urlForOgImage } from "@/lib/sanity/post-images";
@@ -65,6 +67,7 @@ export default async function BlogPostPage({ params }: PageProps) {
 
   const imageUrl = post.heroImage ? urlForHeroImage(post.heroImage) : null;
   const heroAlt = imageAlt(post.heroImage, post.title);
+  const speechText = buildArticleSpeechText(post.title, post.excerpt, post.body);
 
   return (
     <article className="min-h-screen px-4 py-28 md:px-8">
@@ -77,12 +80,16 @@ export default async function BlogPostPage({ params }: PageProps) {
         </Link>
 
         <header>
-          <time
-            dateTime={post.publishedAt}
-            className="font-mono text-xs tracking-widest text-accent uppercase"
-          >
-            {formatDate(post.publishedAt)}
-          </time>
+          <div className="flex items-center justify-between gap-4">
+            <time
+              dateTime={post.publishedAt}
+              className="font-mono text-xs tracking-widest text-accent uppercase"
+            >
+              {formatDate(post.publishedAt)}
+            </time>
+
+            <ArticleSpeechPlayer text={speechText} />
+          </div>
 
           <h1 className="font-display mt-4 text-4xl font-bold tracking-tight text-text-primary md:text-5xl lg:text-6xl">
             {post.title}

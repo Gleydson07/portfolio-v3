@@ -5,9 +5,14 @@ import { ReactNode } from "react";
 
 interface SmoothScrollProviderProps {
   children: ReactNode;
+  enabled?: boolean;
 }
 
-export function SmoothScrollProvider({ children }: SmoothScrollProviderProps) {
+export function SmoothScrollProvider({ children, enabled = true }: SmoothScrollProviderProps) {
+  if (!enabled) {
+    return <>{children}</>;
+  }
+
   return (
     <ReactLenis
       root
@@ -16,7 +21,7 @@ export function SmoothScrollProvider({ children }: SmoothScrollProviderProps) {
         duration: 1,
         smoothWheel: true,
         wheelMultiplier: 1.1,
-        touchMultiplier: 1.5,
+        touchMultiplier: 1,
         infinite: false,
       }}
     >

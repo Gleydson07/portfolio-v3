@@ -157,17 +157,17 @@ export const contactContent = {
   links: [
     {
       label: "LinkedIn",
-      href: "https://www.linkedin.com/in/gsantosdev/",
+      href: "https://www.linkedin.com/in/gassantosdev/",
       external: true,
     },
     {
       label: "GitHub",
-      href: "https://github.com/Gleydson07",
+      href: "https://github.com/gassantosdev",
       external: true,
     },
     {
       label: "E-mail",
-      href: "mailto:gsantos.dev@gmail.com",
+      href: "mailto:gassantos.dev@gmail.com",
       external: false,
     },
   ],

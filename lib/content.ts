@@ -2,10 +2,10 @@ export const siteConfig = {
   name: "Gleydson Santos",
   title: "Engenheiro de software",
   description:
-    "Engenheiro de software com foco em arquitetura, código de qualidade e entrega de soluções escaláveis com impacto mensurável.",
+    "Engenheiro de Software Backend e Fullstack com Node.js, NestJS e TypeScript — arquitetura limpa, testes e entrega com impacto mensurável.",
   url: "https://gsantos.dev.br",
   locale: "pt_BR",
-  status: "DISPONÍVEL · VIÇOSA, AL",
+  status: "DISPONÍVEL",
 };
 
 export type NavAnchorItem = { id: string; label: string; href?: never };
@@ -25,7 +25,7 @@ export const heroContent = {
   name: "Gleydson Santos",
   title: "Engenheiro de software",
   subtitle:
-    "Unindo arquitetura, engenharia de software e visão de produto para entregar soluções que escalam.",
+    "Unindo arquitetura, engenharia de software e visão de produto para entregar soluções robustas.",
   hudLabel: "// SYS.ONLINE",
   ctaSecondary: "LinkedIn",
 };
@@ -42,15 +42,16 @@ export const experienceContent = {
         {
           title: "Desenvolvedor Full-stack",
           impacts: [
-            "Desenvolvimento full-stack com NestJS, Clean Architecture, Next.js, SQL Server e Docker.",
-            "Aplicação de SOLID, clean code e testes em ambientes de produção.",
+            "Reduzi o tempo de resposta de APIs de ~4s para <400ms com otimizações de arquitetura e banco de dados.",
+            "Elevei a cobertura de testes de 0 para ~90%, garantindo estabilidade em entregas de produção.",
             "Integração de sistemas internos com ERPs de mercado no setor financeiro e imobiliário.",
           ],
         },
         {
           title: "Tech Lead",
           impacts: [
-            "Coordenação técnica na automatização de monitoramento de recebíveis (financeiro/imobiliário).",
+            "Liderança de squad de 4 desenvolvedores na automatização de monitoramento de recebíveis.",
+            "Redução de ~60% no tempo de configuração por operação com padronização e automação de fluxos.",
             "Discovery e validação técnica com o time de produto.",
           ],
         },
@@ -65,8 +66,7 @@ export const experienceContent = {
           impacts: [
             "Comunicação com o time de produto e operações no levantamento de requisitos para novas features.",
             "Refinamento e desenvolvimento de tarefas backend e frontend com Next.js, Node.js e arquitetura event-driven.",
-            "Integração com terceiros: consumo de APIs assíncronas via HTTP e processamento de eventos recebidos por webhooks.",
-            "Engenharia de prompt para interpretação de dados e geração de output com base em templates pré-definidos.",
+            "Integrações resilientes com webhooks + IA para padronizar contratos instáveis de parceiros externos.",
           ],
         },
       ],
@@ -78,6 +78,7 @@ export const experienceContent = {
         {
           title: "Desenvolvedor Backend",
           impacts: [
+            "Aplicação prática de AWS (SQS, S3, EC2, CodeBuild) em produto bancário real.",
             "Desenvolvimento backend com Node.js, inversão de dependências e Docker.",
             "Integração com serviços de core na construção de apps bancários.",
           ],
